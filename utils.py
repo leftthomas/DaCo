@@ -10,11 +10,6 @@ from torchvision import transforms
 
 from model import Model
 
-
-def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
-
-
 train_transform = transforms.Compose([
     transforms.RandomResizedCrop(256),
     transforms.RandomHorizontalFlip(p=0.5),
@@ -32,59 +27,44 @@ test_transform = transforms.Compose([
 class Alderley(Dataset):
     def __init__(self, root, train=True):
         super(Alderley, self).__init__()
+
         frame_matches = pd.read_csv(os.path.join(root, 'framematches.csv'))
+        day_images = list(frame_matches['day'])
+        night_images = list(frame_matches['night'])
+        day_loc = day_images.index(11686)
+        night_loc = night_images.index(13800)
+
         if train:
-            self.image_file_names = [os.path.join(root, 'train', x) for x in os.listdir(root + '/train') if
-                                     is_image_file(x)]
+            day_images = day_images[:day_loc + 1]
+            night_images = night_images[:night_loc + 1]
             self.transform = train_transform
         else:
-            self.image_file_names = [os.path.join(root, 'val', x) for x in os.listdir(root + '/val') if
-                                     is_image_file(x)]
+            day_images = day_images[day_loc + 1:]
+            night_images = night_images[night_loc + 1:]
             self.transform = test_transform
+        self.image_file_names = [os.path.join(root, 'images', 'Image%05d_day.jpg' % x) for x in day_images]
+        self.image_file_names += [os.path.join(root, 'images', 'Image%05d_night.jpg' % x) for x in night_images]
 
     def __getitem__(self, index):
         img_name = self.image_file_names[index]
         img = Image.open(img_name)
-        p, n = os.path.split(img_name)
-        img_g = Image.open(os.path.join(p, "gen", n.split('.')[0] + '_gen' + n.split('.')[-1]))
-
-        pos_1 = self.transform(img)
-        pos_2 = self.transform(img)
-        pos_3 = self.transform(img_g)
-        pos_4 = self.transform(img_g)
-        return pos_1, pos_2, pos_3, pos_4, img_name
+        image = self.transform(img)
+        return image, index, img_name
 
     def __len__(self):
         return len(self.image_file_names)
 
 
+# TODO
 class Seasons(Dataset):
     def __init__(self, root, train=True):
         super(Seasons, self).__init__()
-        frame_matches = pd.read_csv(os.path.join(root, 'framematches.csv'))
-        if train:
-            self.image_file_names = [os.path.join(root, 'train', x) for x in os.listdir(root + '/train') if
-                                     is_image_file(x)]
-            self.transform = train_transform
-        else:
-            self.image_file_names = [os.path.join(root, 'val', x) for x in os.listdir(root + '/val') if
-                                     is_image_file(x)]
-            self.transform = test_transform
 
     def __getitem__(self, index):
-        img_name = self.image_file_names[index]
-        img = Image.open(img_name)
-        p, n = os.path.split(img_name)
-        img_g = Image.open(os.path.join(p, "gen", n.split('.')[0] + '_gen' + n.split('.')[-1]))
-
-        pos_1 = self.transform(img)
-        pos_2 = self.transform(img)
-        pos_3 = self.transform(img_g)
-        pos_4 = self.transform(img_g)
-        return pos_1, pos_2, pos_3, pos_4, img_name
+        return None
 
     def __len__(self):
-        return len(self.image_file_names)
+        return None
 
 
 def get_opts():

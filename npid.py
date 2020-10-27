@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -7,13 +8,19 @@ from tqdm import tqdm
 
 import utils
 
+# for reproducibility
+np.random.seed(0)
+torch.manual_seed(0)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 
 # train for one epoch to learn unique features
 def train(net, data_loader, train_optimizer):
     global z
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
-    for data, pos_index in train_bar:
+    for data, pos_index, _ in train_bar:
         data = data.to('cuda')
         train_optimizer.zero_grad()
         _, features = net(data)
@@ -29,7 +36,7 @@ def train(net, data_loader, train_optimizer):
         out = torch.exp(sim_matrix / temperature)
         # Monte Carlo approximation, use the approximation derived from initial batches as z
         if z is None:
-            z = out.detach().mean() * n
+            z = out.clone().detach().mean() * n
         # compute P(i|v) ---> [B, 1+M]
         output = out / z
 
@@ -45,9 +52,9 @@ def train(net, data_loader, train_optimizer):
 
         # update memory bank ---> [B, D]
         pos_samples = samples.select(dim=1, index=0)
-        pos_samples = features.detach().cpu() * momentum + pos_samples * (1.0 - momentum)
+        pos_samples = features.clone().detach().cpu() * momentum + pos_samples.clone().detach() * (1.0 - momentum)
         pos_samples = F.normalize(pos_samples, dim=-1)
-        memory_bank.index_copy_(dim=0, index=pos_index, tensor=pos_samples)
+        memory_bank.index_copy_(0, pos_index, pos_samples)
 
         total_num += data.size(0)
         total_loss += loss.item() * data.size(0)
@@ -59,14 +66,16 @@ def train(net, data_loader, train_optimizer):
 # test for one epoch to obtain the test vectors
 def test(net, test_data_loader):
     net.eval()
-    feature_bank = []
+    image_names, feature_bank, feature_vectors = [], [], {}
     with torch.no_grad():
         # generate feature bank
-        for data, index in tqdm(test_data_loader, desc='Feature extracting'):
+        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting'):
+            image_names += image_name
             feature_bank.append(net(data.to('cuda'))[0])
-        # [N, D]
-        feature_bank = torch.cat(feature_bank)
-    return feature_bank
+        feature_bank = torch.cat(feature_bank, dim=0)
+    for index in range(len(image_names)):
+        feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]
+    return feature_vectors
 
 
 if __name__ == '__main__':
@@ -81,8 +90,8 @@ if __name__ == '__main__':
     # model setup and optimizer config
     model, optimizer = utils.get_model_optimizer(feature_dim)
 
-    # z as normalizer, init with None, c as num of train class, n as num of train data
-    z, c, n = None, len(train_loader.dataset.classes), len(train_loader.dataset)
+    # z as normalizer, init with None, n as num of train data
+    z, n = None, len(train_loader.dataset)
     # init memory bank as unit random vector ---> [N, D]
     memory_bank = F.normalize(torch.randn(n, feature_dim), dim=-1)
 
@@ -93,9 +102,11 @@ if __name__ == '__main__':
     if not os.path.exists('results'):
         os.mkdir('results')
     for epoch in range(1, epochs + 1):
-        train_loss = train(model, train_loader, optimizer)
+        # train_loss = train(model, train_loader, optimizer)
+        test_vectors = test(model, test_loader)
         results['train_loss'].append(train_loss)
         # save statistics
         data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
         data_frame.to_csv('results/{}_results.csv'.format(save_name_pre), index_label='epoch')
-        torch.save(model.state_dict(), 'epochs/{}_model.pth'.format(save_name_pre))
+        torch.save(model.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
+        torch.save(test_vectors, 'results/{}_{}_vectors.pth'.format(save_name_pre, epoch))
