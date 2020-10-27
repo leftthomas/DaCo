@@ -29,7 +29,7 @@ test_transform = transforms.Compose([
 
 
 class Alderley(Dataset):
-    def __init__(self, root, train=True):
+    def __init__(self, root, train=True, pair=False):
         super(Alderley, self).__init__()
 
         image_file_names = [os.path.join(root, 'images', x) for x in os.listdir(root + '/images') if is_image_file(x)]
@@ -54,12 +54,18 @@ class Alderley(Dataset):
                     if image_id > 13800:
                         self.image_file_names.append(image_name)
             self.transform = test_transform
+        # decide whether using paired images
+        self.pair = pair
 
     def __getitem__(self, index):
         img_name = self.image_file_names[index]
         img = Image.open(img_name)
         image = self.transform(img)
-        return image, index, img_name
+        if self.pair:
+            pair_image = self.transform(img)
+            return image, pair_image, index, img_name
+        else:
+            return image, index, img_name
 
     def __len__(self):
         return len(self.image_file_names)
@@ -67,8 +73,10 @@ class Alderley(Dataset):
 
 # TODO
 class Seasons(Dataset):
-    def __init__(self, root, train=True):
+    def __init__(self, root, train=True, pair=False):
         super(Seasons, self).__init__()
+        # decide whether using paired images
+        self.pair = pair
 
     def __getitem__(self, index):
         return None
@@ -97,12 +105,12 @@ def get_opts():
 
 
 # dataset prepare
-def get_dataset(data_path, data_name, batch_size):
+def get_dataset(data_path, data_name, batch_size, pair=False):
     if data_name == 'alderley':
-        train_data = Alderley(root='{}/{}'.format(data_path, data_name), train=True)
+        train_data = Alderley(root='{}/{}'.format(data_path, data_name), train=True, pair=pair)
         test_data = Alderley(root='{}/{}'.format(data_path, data_name), train=False)
     else:
-        train_data = Seasons(root='{}/{}'.format(data_path, data_name), train=True)
+        train_data = Seasons(root='{}/{}'.format(data_path, data_name), train=True, pair=pair)
         test_data = Seasons(root='{}/{}'.format(data_path, data_name), train=False)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, drop_last=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16)
