@@ -18,8 +18,8 @@ optional arguments:
 --data_path                   Datasets path [default value is '/home/data']
 --data_name                   Dataset name [default value is 'alderley'](choices=['alderley', 'seasons'])
 --feature_dim                 Feature dim for each image [default value is 128]
---temperature                 Temperature used in softmax [default value is 0.5]
---batch_size                  Number of images in each mini-batch [default value is 128]
+--temperature                 Temperature used in softmax [default value is 0.07]
+--batch_size                  Number of images in each mini-batch [default value is 64]
 --epochs                      Number of sweeps over the dataset to train [default value is 200]
 --gpu_ids                     Selected gpu [default value is '0']  
 --m                           Negative sample number [default value is 4096]

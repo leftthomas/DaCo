@@ -17,10 +17,10 @@ def is_image_file(filename):
 
 
 train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(256),
-    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomResizedCrop(256, scale=(0.2, 1.0)),
     transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
     transforms.RandomGrayscale(p=0.2),
+    transforms.RandomHorizontalFlip(p=0.5),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
@@ -94,8 +94,8 @@ def get_opts():
     parser.add_argument('--data_name', default='alderley', type=str, choices=['alderley', 'seasons'],
                         help='Dataset name')
     parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for each image')
-    parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
-    parser.add_argument('--batch_size', default=128, type=int, help='Number of images in each mini-batch')
+    parser.add_argument('--temperature', default=0.07, type=float, help='Temperature used in softmax')
+    parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu_ids', default='0', type=str, help='Selected gpu')
     # args for NPID
