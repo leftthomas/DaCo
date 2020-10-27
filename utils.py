@@ -122,7 +122,8 @@ def get_dataset(data_path, data_name, batch_size, pair=False):
 
 # model setup and optimizer config
 def get_model_optimizer(feature_dim, device_id):
-    model = Model(feature_dim).cuda(device_id)
+    model = Model(feature_dim)
+    model.to(device_id)
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
     return model, optimizer
 
@@ -135,7 +136,7 @@ def test(net, test_data_loader, device_id):
         # generate feature bank
         for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting'):
             image_names += image_name
-            feature_bank.append(net(data.cuda(device_id))[0])
+            feature_bank.append(net(data.to(device_id))[0])
         feature_bank = torch.cat(feature_bank, dim=0)
     for index in range(len(image_names)):
         feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]

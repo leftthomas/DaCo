@@ -20,7 +20,7 @@ def train(net, data_loader, train_optimizer):
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
     for pos_1, pos_2, _, __ in train_bar:
-        pos_1, pos_2 = pos_1.cuda(device_ids[0]), pos_2.cuda(device_ids[0])
+        pos_1, pos_2 = pos_1.to(device_ids[0]), pos_2.to(device_ids[0])
         _, out_1 = net(pos_1)
         _, out_2 = net(pos_2)
         # [2*B, D]
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     args = utils.get_opts()
     feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
     data_path, data_name = args.data_path, args.data_name
-    device_ids = [int(gpu) for gpu in args.gpu_ids.split(',')]
+    device_ids = [torch.device('cuda:{}'.format(gpu)) for gpu in args.gpu_ids.split(',')]
 
     # data prepare
     train_loader, test_loader = utils.get_dataset(data_path, data_name, batch_size, True)

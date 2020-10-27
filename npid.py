@@ -22,7 +22,7 @@ def train(net, data_loader, train_optimizer):
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
     for data, pos_index, _ in train_bar:
-        data = data.cuda(device_ids[0])
+        data = data.to(device_ids[0])
         _, features = net(data)
 
         # randomly generate M+1 sample indexes for each batch ---> [B, M+1]
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args = utils.get_opts()
     feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
     data_path, data_name, m, momentum = args.data_path, args.data_name, args.m, args.momentum
-    device_ids = [int(gpu) for gpu in args.gpu_ids.split(',')]
+    device_ids = [torch.device('cuda:{}'.format(gpu)) for gpu in args.gpu_ids.split(',')]
 
     # data prepare
     train_loader, test_loader = utils.get_dataset(data_path, data_name, batch_size)
