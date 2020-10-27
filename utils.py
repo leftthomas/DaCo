@@ -1,7 +1,14 @@
-from torch.utils.data import Dataset
-from PIL import Image
-from torchvision import transforms
+import argparse
 import os
+
+import pandas as pd
+import torch.optim as optim
+from PIL import Image
+from torch.utils.data import DataLoader
+from torch.utils.data import Dataset
+from torchvision import transforms
+
+from model import Model
 
 
 def is_image_file(filename):
@@ -25,6 +32,7 @@ test_transform = transforms.Compose([
 class Alderley(Dataset):
     def __init__(self, root, train=True):
         super(Alderley, self).__init__()
+        frame_matches = pd.read_csv(os.path.join(root, 'framematches.csv'))
         if train:
             self.image_file_names = [os.path.join(root, 'train', x) for x in os.listdir(root + '/train') if
                                      is_image_file(x)]
@@ -49,3 +57,70 @@ class Alderley(Dataset):
     def __len__(self):
         return len(self.image_file_names)
 
+
+class Seasons(Dataset):
+    def __init__(self, root, train=True):
+        super(Seasons, self).__init__()
+        frame_matches = pd.read_csv(os.path.join(root, 'framematches.csv'))
+        if train:
+            self.image_file_names = [os.path.join(root, 'train', x) for x in os.listdir(root + '/train') if
+                                     is_image_file(x)]
+            self.transform = train_transform
+        else:
+            self.image_file_names = [os.path.join(root, 'val', x) for x in os.listdir(root + '/val') if
+                                     is_image_file(x)]
+            self.transform = test_transform
+
+    def __getitem__(self, index):
+        img_name = self.image_file_names[index]
+        img = Image.open(img_name)
+        p, n = os.path.split(img_name)
+        img_g = Image.open(os.path.join(p, "gen", n.split('.')[0] + '_gen' + n.split('.')[-1]))
+
+        pos_1 = self.transform(img)
+        pos_2 = self.transform(img)
+        pos_3 = self.transform(img_g)
+        pos_4 = self.transform(img_g)
+        return pos_1, pos_2, pos_3, pos_4, img_name
+
+    def __len__(self):
+        return len(self.image_file_names)
+
+
+def get_opts():
+    parser = argparse.ArgumentParser(description='Train Model')
+    # common args
+    parser.add_argument('--data_path', default='/home/data', type=str, help='Datasets path')
+    parser.add_argument('--data_name', default='alderley', type=str, choices=['alderley', 'seasons'],
+                        help='Dataset name')
+    parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for each image')
+    parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
+    parser.add_argument('--batch_size', default=128, type=int, help='Number of images in each mini-batch')
+    parser.add_argument('--epochs', default=500, type=int, help='Number of sweeps over the dataset to train')
+    # args for NPID
+    parser.add_argument('--m', default=4096, type=int, help='Negative sample number')
+    parser.add_argument('--momentum', default=0.5, type=float, help='Momentum used for the update of memory bank')
+
+    # args parse
+    args = parser.parse_args()
+    return args
+
+
+# dataset prepare
+def get_dataset(data_path, data_name, batch_size):
+    if data_name == 'alderley':
+        train_data = Alderley(root='{}/{}'.format(data_path, data_name), train=True)
+        test_data = Alderley(root='{}/{}'.format(data_path, data_name), train=False)
+    else:
+        train_data = Seasons(root='{}/{}'.format(data_path, data_name), train=True)
+        test_data = Seasons(root='{}/{}'.format(data_path, data_name), train=False)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, drop_last=True)
+    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16)
+    return train_loader, test_loader
+
+
+# model setup and optimizer config
+def get_model_optimizer(feature_dim):
+    model = Model(feature_dim).to('cuda')
+    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+    return model, optimizer
