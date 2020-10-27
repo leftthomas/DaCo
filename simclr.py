@@ -1,10 +1,17 @@
 import os
 
+import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
 
 import utils
+
+# for reproducibility
+np.random.seed(0)
+torch.manual_seed(0)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 
 # train for one epoch to learn unique features
