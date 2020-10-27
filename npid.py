@@ -103,10 +103,11 @@ if __name__ == '__main__':
         os.mkdir('results')
     for epoch in range(1, epochs + 1):
         train_loss = train(model, train_loader, optimizer)
-        test_vectors = test(model, test_loader)
         results['train_loss'].append(train_loss)
-        # save statistics
-        data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
-        data_frame.to_csv('results/{}_results.csv'.format(save_name_pre), index_label='epoch')
-        torch.save(model.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
-        torch.save(test_vectors, 'results/{}_{}_vectors.pth'.format(save_name_pre, epoch))
+        if epoch % 10 == 0:
+            test_vectors = test(model, test_loader)
+            # save statistics
+            data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
+            data_frame.to_csv('results/{}_results.csv'.format(save_name_pre), index_label='epoch')
+            torch.save(model.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
+            torch.save(test_vectors, 'results/{}_{}_vectors.pth'.format(save_name_pre, epoch))
