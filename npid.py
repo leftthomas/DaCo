@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from torch.nn import DataParallel
 from tqdm import tqdm
 
 import utils
@@ -21,8 +22,7 @@ def train(net, data_loader, train_optimizer):
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
     for data, pos_index, _ in train_bar:
-        data = data.to('cuda')
-        train_optimizer.zero_grad()
+        data = data.cuda(device_ids[0])
         _, features = net(data)
 
         # randomly generate M+1 sample indexes for each batch ---> [B, M+1]
@@ -47,6 +47,7 @@ def train(net, data_loader, train_optimizer):
         p_n = ((m / n) / (output.narrow(dim=-1, start=1, length=m) + m / n)).log()
         # compute J_NCE(θ)=-E(P_d)-M*E(P_n)
         loss = - (p_d.sum() + p_n.sum()) / data.size(0)
+        train_optimizer.zero_grad()
         loss.backward()
         train_optimizer.step()
 
@@ -68,12 +69,15 @@ if __name__ == '__main__':
     args = utils.get_opts()
     feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
     data_path, data_name, m, momentum = args.data_path, args.data_name, args.m, args.momentum
+    device_ids = [int(gpu) for gpu in args.gpu_ids.split(',')]
 
     # data prepare
     train_loader, test_loader = utils.get_dataset(data_path, data_name, batch_size)
 
     # model setup and optimizer config
-    model, optimizer = utils.get_model_optimizer(feature_dim)
+    model, optimizer = utils.get_model_optimizer(feature_dim, device_ids[0])
+    if len(device_ids) > 1:
+        model = DataParallel(model, device_ids=device_ids)
 
     # z as normalizer, init with None, n as num of train data
     z, n = None, len(train_loader.dataset)
@@ -90,9 +94,12 @@ if __name__ == '__main__':
         train_loss = train(model, train_loader, optimizer)
         results['train_loss'].append(train_loss)
         if epoch % 10 == 0:
-            test_vectors = utils.test(model, test_loader)
+            test_vectors = utils.test(model, test_loader, device_ids[0])
             # save statistics
             data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
             data_frame.to_csv('results/{}_results.csv'.format(save_name_pre), index_label='epoch')
-            torch.save(model.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
+            if len(device_ids) > 1:
+                torch.save(model.module.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
+            else:
+                torch.save(model.state_dict(), 'results/{}_{}_model.pth'.format(save_name_pre, epoch))
             torch.save(test_vectors, 'results/{}_{}_vectors.pth'.format(save_name_pre, epoch))

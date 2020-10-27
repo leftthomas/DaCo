@@ -13,7 +13,7 @@ conda install pytorch=1.6.0 torchvision cudatoolkit=10.2 -c pytorch
 
 ## Usage
 ```
-python ${npid}/{simclr}/{moco}$.py --epochs 100 --feature_dim 256
+python ${npid}/{simclr}/{moco}$.py --epochs 100 --feature_dim 256 --gpu_ids 0,1
 optional arguments:
 --data_path                   Datasets path [default value is '/home/data']
 --data_name                   Dataset name [default value is 'alderley'](choices=['alderley', 'seasons'])
@@ -21,6 +21,7 @@ optional arguments:
 --temperature                 Temperature used in softmax [default value is 0.5]
 --batch_size                  Number of images in each mini-batch [default value is 128]
 --epochs                      Number of sweeps over the dataset to train [default value is 200]
+--gpu_ids                     Selected gpu [default value is '0']  
 --m                           Negative sample number [default value is 4096]
 --momentum                    Momentum used for the update of memory bank [default value is 0.5]
 ```
