@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import pandas as pd
 import torch.optim as optim
 from PIL import Image
 from torch.utils.data import DataLoader
@@ -9,6 +8,11 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 from model import Model
+
+
+def is_image_file(filename):
+    return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
+
 
 train_transform = transforms.Compose([
     transforms.RandomResizedCrop(256),
@@ -28,22 +32,28 @@ class Alderley(Dataset):
     def __init__(self, root, train=True):
         super(Alderley, self).__init__()
 
-        frame_matches = pd.read_csv(os.path.join(root, 'framematches.csv'))
-        day_images = list(frame_matches['day'])
-        night_images = list(frame_matches['night'])
-        day_loc = day_images.index(11686)
-        night_loc = night_images.index(13800)
-
+        image_file_names = [os.path.join(root, 'images', x) for x in os.listdir(root + '/images') if is_image_file(x)]
+        self.image_file_names = []
         if train:
-            day_images = day_images[:day_loc + 1]
-            night_images = night_images[:night_loc + 1]
+            for image_name in image_file_names:
+                image_id = int(image_name.split('/')[-1].split('.')[0].split('_')[0][5:])
+                if 'day' in image_name:
+                    if image_id <= 11686:
+                        self.image_file_names.append(image_name)
+                if 'night' in image_name:
+                    if image_id <= 13800:
+                        self.image_file_names.append(image_name)
             self.transform = train_transform
         else:
-            day_images = day_images[day_loc + 1:]
-            night_images = night_images[night_loc + 1:]
+            for image_name in image_file_names:
+                image_id = int(image_name.split('/')[-1].split('.')[0].split('_')[0][5:])
+                if 'day' in image_name:
+                    if image_id > 11686:
+                        self.image_file_names.append(image_name)
+                if 'night' in image_name:
+                    if image_id > 13800:
+                        self.image_file_names.append(image_name)
             self.transform = test_transform
-        self.image_file_names = [os.path.join(root, 'images', 'Image%05d_day.jpg' % x) for x in day_images]
-        self.image_file_names += [os.path.join(root, 'images', 'Image%05d_night.jpg' % x) for x in night_images]
 
     def __getitem__(self, index):
         img_name = self.image_file_names[index]

@@ -102,7 +102,7 @@ if __name__ == '__main__':
     if not os.path.exists('results'):
         os.mkdir('results')
     for epoch in range(1, epochs + 1):
-        # train_loss = train(model, train_loader, optimizer)
+        train_loss = train(model, train_loader, optimizer)
         test_vectors = test(model, test_loader)
         results['train_loss'].append(train_loss)
         # save statistics
