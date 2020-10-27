@@ -63,21 +63,6 @@ def train(net, data_loader, train_optimizer):
     return total_loss / total_num
 
 
-# test for one epoch to obtain the test vectors
-def test(net, test_data_loader):
-    net.eval()
-    image_names, feature_bank, feature_vectors = [], [], {}
-    with torch.no_grad():
-        # generate feature bank
-        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting'):
-            image_names += image_name
-            feature_bank.append(net(data.to('cuda'))[0])
-        feature_bank = torch.cat(feature_bank, dim=0)
-    for index in range(len(image_names)):
-        feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]
-    return feature_vectors
-
-
 if __name__ == '__main__':
     # args parse
     args = utils.get_opts()
@@ -105,7 +90,7 @@ if __name__ == '__main__':
         train_loss = train(model, train_loader, optimizer)
         results['train_loss'].append(train_loss)
         if epoch % 10 == 0:
-            test_vectors = test(model, test_loader)
+            test_vectors = utils.test(model, test_loader)
             # save statistics
             data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
             data_frame.to_csv('results/{}_results.csv'.format(save_name_pre), index_label='epoch')

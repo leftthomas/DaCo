@@ -1,11 +1,13 @@
 import argparse
 import os
 
+import torch
 import torch.optim as optim
 from PIL import Image
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 from torchvision import transforms
+from tqdm import tqdm
 
 from model import Model
 
@@ -94,7 +96,7 @@ def get_opts():
     parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for each image')
     parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
     parser.add_argument('--batch_size', default=128, type=int, help='Number of images in each mini-batch')
-    parser.add_argument('--epochs', default=500, type=int, help='Number of sweeps over the dataset to train')
+    parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     # args for NPID
     parser.add_argument('--m', default=4096, type=int, help='Negative sample number')
     parser.add_argument('--momentum', default=0.5, type=float, help='Momentum used for the update of memory bank')
@@ -122,3 +124,18 @@ def get_model_optimizer(feature_dim):
     model = Model(feature_dim).to('cuda')
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
     return model, optimizer
+
+
+# test for one epoch to obtain the test vectors
+def test(net, test_data_loader):
+    net.eval()
+    image_names, feature_bank, feature_vectors = [], [], {}
+    with torch.no_grad():
+        # generate feature bank
+        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting'):
+            image_names += image_name
+            feature_bank.append(net(data.to('cuda'))[0])
+        feature_bank = torch.cat(feature_bank, dim=0)
+    for index in range(len(image_names)):
+        feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]
+    return feature_vectors
