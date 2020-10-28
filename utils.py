@@ -98,7 +98,7 @@ def get_opts():
     parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu_ids', default='0', type=str, help='Selected gpu')
-    # args for NPID
+    # args for NPID and MoCo
     parser.add_argument('--m', default=4096, type=int, help='Negative sample number')
     parser.add_argument('--momentum', default=0.5, type=float, help='Momentum used for the update of memory bank')
 
