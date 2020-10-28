@@ -25,3 +25,15 @@ optional arguments:
 --m                           Negative sample number [default value is 4096]
 --momentum                    Momentum used for the update of memory bank [default value is 0.5]
 ```
+For example, to run `NPID` with `Alderley` dataset on 2 GPUs:
+```
+python npid.py --data_path /data --gpu_ids 0,1
+``` 
+run `SimCLR` with `Alderley` dataset on 2 GPUs:
+```
+python simclr.py --data_path /data --gpu_ids 2,3
+``` 
+run `MoCo` with `Alderley` dataset on 2 GPUs:
+```
+python moco.py --data_path /data --gpu_ids 0,1 --momentum 0.999
+``` 
