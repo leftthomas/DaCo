@@ -134,7 +134,7 @@ def test(net, test_data_loader, device_id):
     image_names, feature_bank, feature_vectors = [], [], {}
     with torch.no_grad():
         # generate feature bank
-        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting'):
+        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting', dynamic_ncols=True):
             image_names += image_name
             feature_bank.append(net(data.to(device_id))[0])
         feature_bank = torch.cat(feature_bank, dim=0)

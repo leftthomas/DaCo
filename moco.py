@@ -18,7 +18,7 @@ torch.backends.cudnn.benchmark = False
 # train for one epoch to learn unique features
 def train(net, data_loader, train_optimizer):
     net.train()
-    total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
+    total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for pos_1, pos_2, _, __ in train_bar:
         pos_1, pos_2 = pos_1.to(device_ids[0]), pos_2.to(device_ids[0])
         _, out_1 = net(pos_1)

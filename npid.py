@@ -20,7 +20,7 @@ torch.backends.cudnn.benchmark = False
 def train(net, data_loader, train_optimizer):
     global z
     net.train()
-    total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader)
+    total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for data, pos_index, _ in train_bar:
         data = data.to(device_ids[0])
         _, features = net(data)
