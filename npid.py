@@ -36,7 +36,7 @@ def train(net, data_loader, train_optimizer):
         out = torch.exp(sim_matrix / temperature)
         # Monte Carlo approximation, use the approximation derived from initial batches as z
         if z is None:
-            z = out.clone().detach().mean() * n
+            z = out.detach().mean() * n
         # compute P(i|v) ---> [B, 1+M]
         output = out / z
 
@@ -53,7 +53,7 @@ def train(net, data_loader, train_optimizer):
 
         # update memory bank ---> [B, D]
         pos_samples = samples.select(dim=1, index=0)
-        pos_samples = features.clone().detach().cpu() * momentum + pos_samples.clone().detach() * (1.0 - momentum)
+        pos_samples = features.detach().cpu() * momentum + pos_samples * (1.0 - momentum)
         pos_samples = F.normalize(pos_samples, dim=-1)
         memory_bank.index_copy_(0, pos_index, pos_samples)
 
