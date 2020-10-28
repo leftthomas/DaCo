@@ -5,7 +5,7 @@ A PyTorch implementation of DaCo based on CVPR 2021 paper [DaCo: Domain-agnostic
 - [Anaconda](https://www.anaconda.com/download/)
 - [PyTorch](https://pytorch.org)
 ```
-conda install pytorch=1.6.0 torchvision cudatoolkit=10.2 -c pytorch
+conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 ```
 
 ## Dataset
