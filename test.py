@@ -1,5 +1,6 @@
 import torch
 
+# TODO
 vector_dict = torch.load('results/npid_alderley_128_0.07_64_200_4096_0.5_200_vectors.pth')
 
 image_names, vectors = [], []

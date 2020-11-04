@@ -1,6 +1,6 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
 from torchvision.models.resnet import resnet50
 
 
@@ -9,7 +9,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.f = []
-        for name, module in resnet50(pretrained=True).named_children():
+        for name, module in resnet50().named_children():
             if not isinstance(module, nn.Linear):
                 self.f.append(module)
         # encoder
