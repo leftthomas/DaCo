@@ -4,14 +4,13 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn.functional as F
 from torch.nn import DataParallel
 from torch.optim import Adam
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
 from model import Model
-from utils import DomainDataset, SimCLRLoss, MoCoLoss
+from utils import DomainDataset, SimCLRLoss, MoCoLoss, NPIDLoss
 
 # for reproducibility
 np.random.seed(0)
@@ -22,32 +21,36 @@ torch.manual_seed(0)
 def train(net_q, data_loader, train_optimizer):
     if method_name == 'moco':
         global model_k
-    if method_name == 'npid':
-        global z
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, __, pos_index in train_bar:
         ori_img_1, ori_img_2 = ori_img_1.cuda(gpu_ids[0]), ori_img_2.cuda(gpu_ids[0])
         _, ori_proj_1 = net_q(ori_img_1)
 
-        if method_name == 'simclr':
+        if method_name == 'npid':
+            loss, pos_samples = loss_criterion(ori_proj_1, pos_index)
+        elif method_name == 'simclr':
             _, ori_proj_2 = net_q(ori_img_2)
-        if method_name == 'moco':
+            loss = loss_criterion(ori_proj_1, ori_proj_2)
+        elif method_name == 'moco':
             # shuffle BN
             idx = torch.randperm(batch_size, device=ori_img_2.device)
             _, ori_proj_2 = model_k(ori_img_2[idx])
             ori_proj_2 = ori_proj_2[torch.argsort(idx)]
-        if method_name == 'daco':
+            loss = loss_criterion(ori_proj_1, ori_proj_2)
+        else:
+            # DaCo
             _, ori_proj_2 = net_q(ori_img_2)
             gen_img_1, gen_img_2 = gen_img_1.cuda(gpu_ids[0]), gen_img_2.cuda(gpu_ids[0])
             _, gen_proj_1 = net_q(gen_img_1)
             _, gen_proj_2 = net_q(gen_img_2)
 
-        loss = loss_criterion(ori_proj_1, ori_proj_2)
         train_optimizer.zero_grad()
         loss.backward()
         train_optimizer.step()
 
+        if method_name == 'npid':
+            loss_criterion.enqueue(ori_proj_1, pos_index, pos_samples)
         if method_name == 'moco':
             loss_criterion.enqueue(ori_proj_2)
             # momentum update
@@ -127,11 +130,7 @@ if __name__ == '__main__':
             model_k = DataParallel(model_k, device_ids=gpu_ids)
 
     if method_name == 'npid':
-        # z as normalizer, init with None
-        z = None
-        # init memory bank as unit random vector ---> [N, Dim]
-        bank = F.normalize(torch.randn(len(train_data), proj_dim), dim=-1)
-
+        loss_criterion = NPIDLoss(len(train_data), negs, proj_dim, momentum, temperature)
     if method_name == 'simclr':
         loss_criterion = SimCLRLoss(temperature)
 
