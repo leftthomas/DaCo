@@ -1,6 +1,8 @@
 import argparse
+import os
 
 import numpy as np
+import pandas as pd
 import torch
 from torch.nn import DataParallel
 from torch.optim import Adam
@@ -48,7 +50,7 @@ def train(net, data_loader, train_optimizer):
 
 
 # test for one epoch to obtain the test vectors
-def test(net, test_data_loader, device_id):
+def val(net, test_data_loader):
     net.eval()
     image_names, feature_bank, feature_vectors = [], [], {}
     with torch.no_grad():
@@ -69,12 +71,13 @@ if __name__ == '__main__':
     parser.add_argument('--data_name', default='dnim', type=str, choices=['dnim', 'cityscapes', 'alderley'],
                         help='Dataset name')
     parser.add_argument('--method_name', default='daco', type=str, choices=['daco', 'simclr', 'moco', 'npid'],
-                        help='Dataset name')
+                        help='Method name')
     parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for each image')
     parser.add_argument('--temperature', default=0.07, type=float, help='Temperature used in softmax')
     parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
+    parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
     # args for DaCo
     parser.add_argument('--lamda', default=0.9, type=float, help='Lambda used for the weight of soft constrain')
     # args for NPID
@@ -86,7 +89,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     data_root, data_name, method_name, gpu_ids = args.data_root, args.data_name, args.method_name, args.gpu_ids
     feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
-    lamda, negs, momentum = args.lamda, args.negs, args.momentum
+    save_root, lamda, negs, momentum = args.save_root, args.lamda, args.negs, args.momentum
 
     # data prepare
     train_data = DomainDataset(data_root, data_name, split='train')
@@ -98,3 +101,25 @@ if __name__ == '__main__':
     optimizer = Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
     if len(gpu_ids) > 1:
         model = DataParallel(model, device_ids=gpu_ids)
+
+    # training loop
+    results = {'train_loss': []}
+    save_name_pre = '{}_{}_{}_{}_{}_{}'.format(data_name, method_name, feature_dim, temperature, batch_size, epochs)
+    if not os.path.exists(save_root):
+        os.makedirs(save_root)
+    best_precise = 0.0
+    for epoch in range(1, epochs + 1):
+        train_loss = train(model, train_loader, optimizer)
+        results['train_loss'].append(train_loss)
+        val_precise, features = val(model, val_loader)
+        # save statistics
+        data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
+        data_frame.to_csv('{}/{}_results.csv'.format(save_root, save_name_pre), index_label='epoch')
+
+        if val_precise > best_precise:
+            best_precise = val_precise
+            if len(gpu_ids) > 1:
+                torch.save(model.module.state_dict(), '{}/{}_model.pth'.format(save_root, save_name_pre))
+            else:
+                torch.save(model.state_dict(), '{}/{}_model.pth'.format(save_root, save_name_pre))
+            torch.save(features, '{}/{}_vectors.pth'.format(save_root, save_name_pre))

@@ -46,8 +46,11 @@ class DomainDataset(Dataset):
         original_img = self.transform(Image.open(original_img_name))
         generated_img_name = self.generated_images[index]
         generated_img = self.transform(Image.open(generated_img_name))
+        assert original_img_name.split('/')[-3] == generated_img_name.split('/')[-3]
+        domain = original_img_name.split('/')[-3]
+        assert os.path.basename(original_img_name) == os.path.basename(generated_img_name)
         img_name = os.path.basename(original_img_name)
-        return original_img, generated_img, img_name
+        return original_img, generated_img, domain, img_name
 
     def __len__(self):
         return len(self.original_images)
