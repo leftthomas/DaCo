@@ -19,8 +19,10 @@ torch.manual_seed(0)
 
 
 # train for one epoch
-def train(net_q, net_k, data_loader, train_optimizer):
-    global queue
+def train(net_q, data_loader, train_optimizer):
+    if method_name == 'moco':
+        global queue
+        global model_k
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, __ in train_bar:
@@ -33,7 +35,7 @@ def train(net_q, net_k, data_loader, train_optimizer):
         if method_name == 'moco':
             # shuffle BN
             idx = torch.randperm(batch_size, device=ori_img_2.device)
-            _, ori_proj_2 = net_k(ori_img_2[idx])
+            _, ori_proj_2 = model_k(ori_img_2[idx])
             ori_proj_2 = ori_proj_2[torch.argsort(idx)]
             loss = moco_loss(ori_proj_1, ori_proj_2, queue, temperature)
         if method_name == 'daco':
@@ -48,7 +50,7 @@ def train(net_q, net_k, data_loader, train_optimizer):
 
         if method_name == 'moco':
             # momentum update
-            for parameter_q, parameter_k in zip(net_q.parameters(), net_k.parameters()):
+            for parameter_q, parameter_k in zip(net_q.parameters(), model_k.parameters()):
                 parameter_k.data.copy_(parameter_k.data * momentum + parameter_q.data * (1.0 - momentum))
             # update queue
             queue = torch.cat((queue, ori_proj_2), dim=0)[batch_size:]
@@ -110,20 +112,21 @@ if __name__ == '__main__':
 
     # model setup
     model_q = Model(proj_dim).cuda(gpu_ids[0])
-    model_k = Model(proj_dim).cuda(gpu_ids[0])
-    # initialize model_k as a shadow model of model_q
-    for param_q, param_k in zip(model_q.parameters(), model_k.parameters()):
-        param_k.data.copy_(param_q.data)
-        # not update by gradient
-        param_k.requires_grad = False
+    if method_name == 'moco':
+        # init memory queue as unit random vector ---> [N, Dim]
+        queue = F.normalize(torch.randn(negs, proj_dim).cuda(gpu_ids[0]), dim=-1)
+        model_k = Model(proj_dim).cuda(gpu_ids[0])
+        # initialize model_k as a shadow model of model_q
+        for param_q, param_k in zip(model_q.parameters(), model_k.parameters()):
+            param_k.data.copy_(param_q.data)
+            # not update by gradient
+            param_k.requires_grad = False
     # optimizer config
     optimizer = Adam(model_q.parameters(), lr=1e-3, weight_decay=1e-6)
     if len(gpu_ids) > 1:
         model_q = DataParallel(model_q, device_ids=gpu_ids)
-        model_k = DataParallel(model_k, device_ids=gpu_ids)
-
-    # init memory queue as unit random vector ---> [N, Dim]
-    queue = F.normalize(torch.randn(negs, proj_dim).cuda(gpu_ids[0]), dim=-1)
+        if method_name == 'moco':
+            model_k = DataParallel(model_k, device_ids=gpu_ids)
 
     # training loop
     results = {'train_loss': []}
@@ -132,7 +135,7 @@ if __name__ == '__main__':
         os.makedirs(save_root)
     best_precise = 0.0
     for epoch in range(1, epochs + 1):
-        train_loss = train(model_q, model_k, train_loader, optimizer)
+        train_loss = train(model_q, train_loader, optimizer)
         results['train_loss'].append(train_loss)
         val_precise, features = val(model_q, val_loader)
         # save statistics
