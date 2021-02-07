@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # args parse
     args = utils.get_opts()
     feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
-    data_path, data_name = args.data_path, args.data_name
+    data_path, data_name = args.data_root, args.data_name
     device_ids = [torch.device('cuda:{}'.format(gpu)) for gpu in args.gpu_ids.split(',')]
 
     # data prepare

@@ -1,143 +1,53 @@
-import argparse
+import glob
 import os
 
-import torch
-import torch.optim as optim
 from PIL import Image
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
+from torch.utils.data.dataset import Dataset
 from torchvision import transforms
-from tqdm import tqdm
-
-from model import Model
-
-
-def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'])
-
-
-train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(256, scale=(0.2, 1.0)),
-    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
-    transforms.RandomGrayscale(p=0.2),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.ToTensor(),
-    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-
-test_transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.ToTensor(),
-    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
-
-
-class Alderley(Dataset):
-    def __init__(self, root, train=True, pair=False):
-        super(Alderley, self).__init__()
-
-        image_file_names = [os.path.join(root, 'images', x) for x in os.listdir(root + '/images') if is_image_file(x)]
-        self.image_file_names = []
-        if train:
-            for image_name in image_file_names:
-                image_id = int(image_name.split('/')[-1].split('.')[0].split('_')[0][5:])
-                if 'day' in image_name:
-                    if image_id <= 11686:
-                        self.image_file_names.append(image_name)
-                if 'night' in image_name:
-                    if image_id <= 13800:
-                        self.image_file_names.append(image_name)
-            self.transform = train_transform
-        else:
-            for image_name in image_file_names:
-                image_id = int(image_name.split('/')[-1].split('.')[0].split('_')[0][5:])
-                if 'day' in image_name:
-                    if image_id > 11686:
-                        self.image_file_names.append(image_name)
-                if 'night' in image_name:
-                    if image_id > 13800:
-                        self.image_file_names.append(image_name)
-            self.transform = test_transform
-        # decide whether using paired images
-        self.pair = pair
-
-    def __getitem__(self, index):
-        img_name = self.image_file_names[index]
-        img = Image.open(img_name)
-        image = self.transform(img)
-        if self.pair:
-            pair_image = self.transform(img)
-            return image, pair_image, index, img_name
-        else:
-            return image, index, img_name
-
-    def __len__(self):
-        return len(self.image_file_names)
-
 
 # TODO
-class Seasons(Dataset):
-    def __init__(self, root, train=True, pair=False):
-        super(Seasons, self).__init__()
-        # decide whether using paired images
-        self.pair = pair
+normalizer = {'dnim': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)],
+              'cityscapes': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)],
+              'alderley': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)]}
+
+
+def get_transform(data_name, split='train'):
+    if split == 'train':
+        return transforms.Compose([
+            transforms.RandomResizedCrop(256, scale=(0.2, 1.0)),
+            transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+            transforms.RandomGrayscale(p=0.2),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ToTensor(),
+            transforms.Normalize(normalizer[data_name][0], normalizer[data_name][1])])
+    else:
+        return transforms.Compose([
+            transforms.Resize(256),
+            transforms.ToTensor(),
+            transforms.Normalize(normalizer[data_name][0], normalizer[data_name][1])])
+
+
+class DomainDataset(Dataset):
+    def __init__(self, data_root, data_name, split='train'):
+        super(DomainDataset, self).__init__()
+
+        original_path = os.path.join(data_root, data_name, 'original', '*', split, '*.png')
+        self.original_images = glob.glob(original_path)
+        self.original_images.sort()
+
+        generated_path = os.path.join(data_root, data_name, 'generated', '*', split, '*.png')
+        self.generated_images = glob.glob(generated_path)
+        self.generated_images.sort()
+
+        self.transform = get_transform(data_name, split)
 
     def __getitem__(self, index):
-        return None
+        original_img_name = self.original_images[index]
+        original_img = self.transform(Image.open(original_img_name))
+        generated_img_name = self.generated_images[index]
+        generated_img = self.transform(Image.open(generated_img_name))
+        img_name = os.path.basename(original_img_name)
+        return original_img, generated_img, img_name
 
     def __len__(self):
-        return None
-
-
-def get_opts():
-    parser = argparse.ArgumentParser(description='Train Model')
-    # common args
-    parser.add_argument('--data_path', default='/home/data', type=str, help='Datasets path')
-    parser.add_argument('--data_name', default='alderley', type=str, choices=['alderley', 'seasons'],
-                        help='Dataset name')
-    parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for each image')
-    parser.add_argument('--temperature', default=0.07, type=float, help='Temperature used in softmax')
-    parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
-    parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
-    parser.add_argument('--gpu_ids', default='0', type=str, help='Selected gpu')
-    # args for NPID and MoCo
-    parser.add_argument('--m', default=4096, type=int, help='Negative sample number')
-    parser.add_argument('--momentum', default=0.5, type=float, help='Momentum used for the update of memory bank')
-
-    # args parse
-    args = parser.parse_args()
-    return args
-
-
-# dataset prepare
-def get_dataset(data_path, data_name, batch_size, pair=False):
-    if data_name == 'alderley':
-        train_data = Alderley(root='{}/{}'.format(data_path, data_name), train=True, pair=pair)
-        test_data = Alderley(root='{}/{}'.format(data_path, data_name), train=False)
-    else:
-        train_data = Seasons(root='{}/{}'.format(data_path, data_name), train=True, pair=pair)
-        test_data = Seasons(root='{}/{}'.format(data_path, data_name), train=False)
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, drop_last=True)
-    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16)
-    return train_loader, test_loader
-
-
-# model setup and optimizer config
-def get_model_optimizer(feature_dim, device_id):
-    model = Model(feature_dim)
-    model.to(device_id)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
-    return model, optimizer
-
-
-# test for one epoch to obtain the test vectors
-def test(net, test_data_loader, device_id):
-    net.eval()
-    image_names, feature_bank, feature_vectors = [], [], {}
-    with torch.no_grad():
-        # generate feature bank
-        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting', dynamic_ncols=True):
-            image_names += image_name
-            feature_bank.append(net(data.to(device_id))[0])
-        feature_bank = torch.cat(feature_bank, dim=0)
-    for index in range(len(image_names)):
-        feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]
-    return feature_vectors
+        return len(self.original_images)
