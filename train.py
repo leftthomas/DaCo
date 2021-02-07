@@ -9,8 +9,8 @@ from torch.optim import Adam
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
-from model import Model
-from utils import DomainDataset, SimCLRLoss, MoCoLoss, NPIDLoss
+from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss
+from utils import DomainDataset
 
 # for reproducibility
 np.random.seed(0)
