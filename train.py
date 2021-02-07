@@ -11,7 +11,7 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
 from model import Model
-from utils import DomainDataset, simclr_loss, moco_loss
+from utils import DomainDataset, SimCLRLoss, MoCoLoss
 
 # for reproducibility
 np.random.seed(0)
@@ -21,39 +21,38 @@ torch.manual_seed(0)
 # train for one epoch
 def train(net_q, data_loader, train_optimizer):
     if method_name == 'moco':
-        global queue
         global model_k
+    if method_name == 'npid':
+        global z
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
-    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, __ in train_bar:
+    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, __, pos_index in train_bar:
         ori_img_1, ori_img_2 = ori_img_1.cuda(gpu_ids[0]), ori_img_2.cuda(gpu_ids[0])
         _, ori_proj_1 = net_q(ori_img_1)
 
         if method_name == 'simclr':
             _, ori_proj_2 = net_q(ori_img_2)
-            loss = simclr_loss(ori_proj_1, ori_proj_2, temperature)
         if method_name == 'moco':
             # shuffle BN
             idx = torch.randperm(batch_size, device=ori_img_2.device)
             _, ori_proj_2 = model_k(ori_img_2[idx])
             ori_proj_2 = ori_proj_2[torch.argsort(idx)]
-            loss = moco_loss(ori_proj_1, ori_proj_2, queue, temperature)
         if method_name == 'daco':
             _, ori_proj_2 = net_q(ori_img_2)
             gen_img_1, gen_img_2 = gen_img_1.cuda(gpu_ids[0]), gen_img_2.cuda(gpu_ids[0])
             _, gen_proj_1 = net_q(gen_img_1)
             _, gen_proj_2 = net_q(gen_img_2)
 
+        loss = loss_criterion(ori_proj_1, ori_proj_2)
         train_optimizer.zero_grad()
         loss.backward()
         train_optimizer.step()
 
         if method_name == 'moco':
+            loss_criterion.enqueue(ori_proj_2)
             # momentum update
             for parameter_q, parameter_k in zip(net_q.parameters(), model_k.parameters()):
                 parameter_k.data.copy_(parameter_k.data * momentum + parameter_q.data * (1.0 - momentum))
-            # update queue
-            queue = torch.cat((queue, ori_proj_2), dim=0)[batch_size:]
 
         total_num += batch_size
         total_loss += loss.item() * batch_size
@@ -107,14 +106,13 @@ if __name__ == '__main__':
     # data prepare
     train_data = DomainDataset(data_root, data_name, split='train')
     val_data = DomainDataset(data_root, data_name, split='val')
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4, drop_last=True)
-    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=8)
 
     # model setup
     model_q = Model(proj_dim).cuda(gpu_ids[0])
     if method_name == 'moco':
-        # init memory queue as unit random vector ---> [N, Dim]
-        queue = F.normalize(torch.randn(negs, proj_dim).cuda(gpu_ids[0]), dim=-1)
+        loss_criterion = MoCoLoss(negs, proj_dim, temperature).cuda(gpu_ids[0])
         model_k = Model(proj_dim).cuda(gpu_ids[0])
         # initialize model_k as a shadow model of model_q
         for param_q, param_k in zip(model_q.parameters(), model_k.parameters()):
@@ -127,6 +125,15 @@ if __name__ == '__main__':
         model_q = DataParallel(model_q, device_ids=gpu_ids)
         if method_name == 'moco':
             model_k = DataParallel(model_k, device_ids=gpu_ids)
+
+    if method_name == 'npid':
+        # z as normalizer, init with None
+        z = None
+        # init memory bank as unit random vector ---> [N, Dim]
+        bank = F.normalize(torch.randn(len(train_data), proj_dim), dim=-1)
+
+    if method_name == 'simclr':
+        loss_criterion = SimCLRLoss(temperature)
 
     # training loop
     results = {'train_loss': []}
