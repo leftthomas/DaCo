@@ -5,10 +5,9 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-# TODO
-normalizer = {'dnim': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)],
-              'cityscapes': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)],
-              'alderley': [(0.485, 0.456, 0.406), (0.229, 0.224, 0.225)]}
+normalizer = {'dnim': [(0.361, 0.337, 0.315), (0.191, 0.186, 0.177)],
+              'cityscapes': [(0.223, 0.241, 0.222), (0.061, 0.062, 0.062)],
+              'alderley': [(0.361, 0.374, 0.330), (0.206, 0.196, 0.189)]}
 
 
 def get_transform(data_name, split='train'):

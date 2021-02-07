@@ -9,7 +9,7 @@ from torch.optim import Adam
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
-from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss
+from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss, DaCoLoss
 from utils import DomainDataset
 
 # for reproducibility
@@ -44,6 +44,7 @@ def train(net_q, data_loader, train_optimizer):
             gen_img_1, gen_img_2 = gen_img_1.cuda(gpu_ids[0]), gen_img_2.cuda(gpu_ids[0])
             _, gen_proj_1 = net_q(gen_img_1)
             _, gen_proj_2 = net_q(gen_img_2)
+            loss = loss_criterion(ori_proj_1, ori_proj_2, gen_proj_1, gen_proj_2)
 
         train_optimizer.zero_grad()
         loss.backward()
@@ -133,6 +134,8 @@ if __name__ == '__main__':
         loss_criterion = NPIDLoss(len(train_data), negs, proj_dim, momentum, temperature)
     if method_name == 'simclr':
         loss_criterion = SimCLRLoss(temperature)
+    if method_name == 'daco':
+        loss_criterion = DaCoLoss(lamda, temperature)
 
     # training loop
     results = {'train_loss': []}
