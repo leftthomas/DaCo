@@ -67,7 +67,7 @@ def train(net, data_loader, train_optimizer):
 if __name__ == '__main__':
     # args parse
     args = utils.get_opts()
-    feature_dim, temperature, batch_size, epochs = args.feature_dim, args.temperature, args.batch_size, args.epochs
+    feature_dim, temperature, batch_size, epochs = args.proj_dim, args.temperature, args.batch_size, args.epochs
     data_path, data_name, m, momentum = args.data_root, args.data_name, args.m, args.momentum
     device_ids = [torch.device('cuda:{}'.format(gpu)) for gpu in args.gpu_ids.split(',')]
 

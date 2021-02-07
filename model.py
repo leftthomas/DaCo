@@ -5,7 +5,7 @@ from torchvision.models.resnet import resnet50
 
 
 class Model(nn.Module):
-    def __init__(self, feature_dim):
+    def __init__(self, proj_dim):
         super(Model, self).__init__()
 
         self.f = []
@@ -16,10 +16,10 @@ class Model(nn.Module):
         self.f = nn.Sequential(*self.f)
         # projection head
         self.g = nn.Sequential(nn.Linear(2048, 512, bias=False), nn.BatchNorm1d(512),
-                               nn.ReLU(inplace=True), nn.Linear(512, feature_dim, bias=True))
+                               nn.ReLU(inplace=True), nn.Linear(512, proj_dim, bias=True))
 
     def forward(self, x):
         x = self.f(x)
         feature = torch.flatten(x, start_dim=1)
-        out = self.g(feature)
-        return F.normalize(feature, dim=-1), F.normalize(out, dim=-1)
+        proj = self.g(feature)
+        return F.normalize(feature, dim=-1), F.normalize(proj, dim=-1)
