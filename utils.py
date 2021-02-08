@@ -59,42 +59,40 @@ class DomainDataset(Dataset):
         return len(self.original_images)
 
 
-def metrics_dnim(names, domains, vectors):
-    labels = torch.zeros(len(names), dtype=torch.long, device=vectors.device)
-    for i, name in enumerate(names):
-        labels[i] = int(name.split('_')[0])
-    domain_a_vectors = vectors[domains, :]
-    domain_b_vectors = vectors[~domains, :]
-    domain_a_labels = labels[domains]
-    domain_b_labels = labels[~domains]
-    # domain a ---> domain b
-    sim = torch.mm(domain_a_vectors, domain_b_vectors.t().contiguous())
-    idx = torch.argmax(sim, dim=-1)
-    precise_ab = torch.eq(domain_b_labels[idx], domain_a_labels).float().mean()
-    # domain b ---> domain a
-    sim = torch.mm(domain_b_vectors, domain_a_vectors.t().contiguous())
-    idx = torch.argmax(sim, dim=-1)
-    precise_ba = torch.eq(domain_a_labels[idx], domain_b_labels).float().mean()
-    precise = (precise_ab + precise_ba) / 2
-    return precise_ab.item(), precise_ba.item(), precise.item()
+def recall(vectors, names, domains, ranks):
+    if 'Image' not in names[0] and 'leftImg8bit' not in names[0]:
+        is_dnim = True
+    else:
+        is_dnim = False
 
-
-def metrics_cityscapes(vectors):
-    domain_a_vectors = vectors[:len(vectors) // 2]
-    domain_b_vectors = vectors[len(vectors) // 2:]
-    domain_labels = torch.arange(0, len(vectors) // 2, device=domain_a_vectors.device)
+    if not is_dnim:
+        labels = torch.arange(len(vectors) // 2, device=vectors.device)
+        labels = torch.cat((labels, labels), dim=0)
+    else:
+        labels = torch.zeros(len(vectors), dtype=torch.long, device=vectors.device)
+        for i, name in enumerate(names):
+            labels[i] = int(name.split('_')[0])
+    a_vectors = vectors[domains, :]
+    b_vectors = vectors[~domains, :]
+    a_labels = labels[domains]
+    b_labels = labels[~domains]
     # domain a ---> domain b
-    sim = torch.mm(domain_a_vectors, domain_b_vectors.t().contiguous())
-    idx = torch.argmax(sim, dim=-1)
-    precise_ab = torch.eq(idx, domain_labels).float().mean()
+    sim_a = a_vectors.mm(b_vectors.t())
+    idx_a = sim_a.topk(k=ranks[-1], dim=-1, largest=True)[1]
     # domain b ---> domain a
-    sim = torch.mm(domain_b_vectors, domain_a_vectors.t().contiguous())
-    idx = torch.argmax(sim, dim=-1)
-    precise_ba = torch.eq(idx, domain_labels).float().mean()
+    sim_b = b_vectors.mm(a_vectors.t())
+    idx_b = sim_b.topk(k=ranks[-1], dim=-1, largest=True)[1]
     # cross domain
-    sim = torch.mm(vectors, vectors.t().contiguous())
+    sim = vectors.mm(vectors.t())
     sim.fill_diagonal_(-np.inf)
-    idx = torch.argmax(sim, dim=-1)
-    label = torch.cat((domain_labels + len(vectors) // 2, domain_labels), dim=0)
-    precise = torch.eq(idx, label).float().mean()
-    return precise_ab.item(), precise_ba.item(), precise.item()
+    idx = sim.topk(k=ranks[-1], dim=-1, largest=True)[1]
+
+    acc_a, acc_b, acc = [], [], []
+    for r in ranks:
+        correct_a = (torch.eq(b_labels[idx_a[:, 0:r]], a_labels.unsqueeze(dim=-1))).any(dim=-1)
+        acc_a.append((torch.sum(correct_a) / correct_a.size(0)).item())
+        correct_b = (torch.eq(a_labels[idx_b[:, 0:r]], b_labels.unsqueeze(dim=-1))).any(dim=-1)
+        acc_b.append((torch.sum(correct_b) / correct_b.size(0)).item())
+        correct = (torch.eq(labels[idx[:, 0:r]], labels.unsqueeze(dim=-1))).any(dim=-1)
+        acc.append((torch.sum(correct) / correct.size(0)).item())
+    return acc_a, acc_b, acc

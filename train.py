@@ -10,7 +10,7 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
 from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss, DaCoLoss
-from utils import DomainDataset, metrics_dnim, metrics_cityscapes
+from utils import DomainDataset, recall
 
 # for reproducibility
 np.random.seed(0)
@@ -76,17 +76,17 @@ def val(net, data_loader):
             vectors.append(net(data.cuda(gpu_ids[0]))[0])
         domains = torch.cat(domains, dim=0)
         vectors = torch.cat(vectors, dim=0)
-        if data_name in ['dnim', 'cityscapes']:
-            results['precise_ab'], results['precise_ba'], results['precise'] = [], [], []
-            if data_name == 'dnim':
-                precise_ab, precise_ba, precise = metrics_dnim(names, domains, vectors)
-            else:
-                precise_ab, precise_ba, precise = metrics_cityscapes(vectors)
-            results['precise_ab'].append(precise_ab)
-            results['precise_ba'].append(precise_ba)
-            results['precise'].append(precise)
-            print('Val Epoch: [{}/{}] A->B: {:.2f}%, B->A: {:.2f}%, AB: {:.2f}%'
-                  .format(epoch, epochs, precise_ab * 100, precise_ba * 100, precise * 100))
+        acc_a, acc_b, acc = recall(vectors, names, domains, ranks)
+        precise = (acc_a[0] + acc_b[0] + acc[0]) / 3
+        desc = 'Val Epoch: [{}/{}] '.format(epoch, epochs)
+        for i, r in enumerate(ranks):
+            results['val_ab_recall@{}'.format(r)].append(acc_a[i] * 100)
+            results['val_ba_recall@{}'.format(r)].append(acc_b[i] * 100)
+            results['val_cross_recall@{}'.format(r)].append(acc[i] * 100)
+            desc += 'A->B@{}:{:.2f}% '.format(r, acc_a[i] * 100)
+            desc += 'B->A@{}:{:.2f}% '.format(r, acc_b[i] * 100)
+            desc += 'A<->B@{}:{:.2f}% '.format(r, acc[i] * 100)
+        print(desc)
     return precise, vectors
 
 
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
+    parser.add_argument('--ranks', default='1,10,20,30', type=str, help='selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
     # args for DaCo
     parser.add_argument('--lamda', default=0.9, type=float, help='Lambda used for the weight of soft constrain')
@@ -116,6 +117,7 @@ if __name__ == '__main__':
     data_root, data_name, method_name, gpu_ids = args.data_root, args.data_name, args.method_name, args.gpu_ids
     proj_dim, temperature, batch_size, epochs = args.proj_dim, args.temperature, args.batch_size, args.epochs
     save_root, lamda, negs, momentum = args.save_root, args.lamda, args.negs, args.momentum
+    ranks = [int(k) for k in args.ranks.split(',')]
 
     # data prepare
     train_data = DomainDataset(data_root, data_name, split='train')
@@ -148,7 +150,11 @@ if __name__ == '__main__':
         loss_criterion = DaCoLoss(lamda, temperature)
 
     # training loop
-    results = {'train_loss': []}
+    results = {'train_loss': [], 'val_precise': []}
+    for rank in ranks:
+        results['val_ab_recall@{}'.format(rank)] = []
+        results['val_ba_recall@{}'.format(rank)] = []
+        results['val_cross_recall@{}'.format(rank)] = []
     save_name_pre = '{}_{}_{}_{}_{}_{}'.format(data_name, method_name, proj_dim, temperature, batch_size, epochs)
     if not os.path.exists(save_root):
         os.makedirs(save_root)
@@ -157,6 +163,7 @@ if __name__ == '__main__':
         train_loss = train(model_q, train_loader, optimizer)
         results['train_loss'].append(train_loss)
         val_precise, features = val(model_q, val_loader)
+        results['val_precise'].append(val_precise * 100)
         # save statistics
         data_frame = pd.DataFrame(data=results, index=range(1, epoch + 1))
         data_frame.to_csv('{}/{}_results.csv'.format(save_root, save_name_pre), index_label='epoch')
