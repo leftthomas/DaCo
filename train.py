@@ -83,9 +83,9 @@ def val(net, data_loader):
             results['val_ab_recall@{}'.format(r)].append(acc_a[i] * 100)
             results['val_ba_recall@{}'.format(r)].append(acc_b[i] * 100)
             results['val_cross_recall@{}'.format(r)].append(acc[i] * 100)
-            desc += 'A->B@{}:{:.2f}% '.format(r, acc_a[i] * 100)
-            desc += 'B->A@{}:{:.2f}% '.format(r, acc_b[i] * 100)
-            desc += 'A<->B@{}:{:.2f}% '.format(r, acc[i] * 100)
+        desc += 'A->B | R@{}:{:.2f}% '.format(ranks[0], acc_a[0] * 100)
+        desc += 'B->A | R@{}:{:.2f}% '.format(ranks[0], acc_b[0] * 100)
+        desc += 'A<->B | R@{}:{:.2f}% '.format(ranks[0], acc[0] * 100)
         print(desc)
     return precise, vectors
 
