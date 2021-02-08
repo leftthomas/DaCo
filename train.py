@@ -103,7 +103,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=200, type=int, help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
-    parser.add_argument('--ranks', default='1,10,20,30', type=str, help='selected recall')
+    parser.add_argument('--ranks', default='1,10,20,30', type=str, help='Selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
     # args for DaCo
     parser.add_argument('--lamda', default=0.9, type=float, help='Lambda used for the weight of soft constrain')

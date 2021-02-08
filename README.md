@@ -1,39 +1,40 @@
 # DaCo
-A PyTorch implementation of DaCo based on CVPR 2021 paper [DaCo: Domain-agnostic Contrastive Learning for Visual Localization]().
+A PyTorch implementation of DaCo based on ICMR 2021
+paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Localization]().
 
 ## Requirements
+
 - [Anaconda](https://www.anaconda.com/download/)
 - [PyTorch](https://pytorch.org)
+
 ```
 conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 ```
 
 ## Dataset
-`Alderley` and `CMU Season` datasets are used in this repo.
+
+[DNIM](), [Cityscapes]() and [Alderley]() datasets are used in this repo, you could download these datasets from
+official websites, or download them from [BaiduYun](), the extraction code is `abcd`. The data should be arranged like
+this, please refer the paper to acquire the details of `train/val` split.
 
 ## Usage
+
 ```
-python ${npid}/{simclr}/{moco}$.py --epochs 100 --feature_dim 256 --gpu_ids 0,1
+python main.py --data_name alderley --method_name simclr --gpu_ids 0,1
 optional arguments:
---data_path                   Datasets path [default value is '/home/data']
---data_name                   Dataset name [default value is 'alderley'](choices=['alderley', 'seasons'])
---feature_dim                 Feature dim for each image [default value is 128]
+--data_root                   Datasets root path [default value is 'data']
+--data_name                   Dataset name [default value is 'dnim'](choices=['dnim', 'cityscapes', 'alderley'])
+--method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
+--proj_dim                    Projected feature dim for computing loss [default value is 128]
 --temperature                 Temperature used in softmax [default value is 0.07]
 --batch_size                  Number of images in each mini-batch [default value is 64]
 --epochs                      Number of sweeps over the dataset to train [default value is 200]
---gpu_ids                     Selected gpu [default value is '0']  
---m                           Negative sample number [default value is 4096]
+--gpu_ids                     Selected gpus to train [required]  
+--ranks                       Selected recall [default value is '1,10,20,30']
+--save_root                   Result saved root path [default value is 'result']
+--lamda                       Lambda used for the weight of soft constrain [default value is 0.9]
+--negs                        Negative sample number [default value is 4096]
 --momentum                    Momentum used for the update of memory bank [default value is 0.5]
 ```
-For example, to run `NPID` with `Alderley` dataset on 2 GPUs:
-```
-python npid.py --data_path /data --gpu_ids 0,1
-``` 
-run `SimCLR` with `Alderley` dataset on 2 GPUs:
-```
-python simclr.py --data_path /data --gpu_ids 2,3
-``` 
-run `MoCo` with `Alderley` dataset on 2 GPUs:
-```
-python moco.py --data_path /data --gpu_ids 0,1 --momentum 0.999
-``` 
+
+## Results
