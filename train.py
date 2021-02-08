@@ -10,7 +10,7 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
 from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss, DaCoLoss
-from utils import DomainDataset, metrics_dnim
+from utils import DomainDataset, metrics_dnim, metrics_cityscapes
 
 # for reproducibility
 np.random.seed(0)
@@ -76,12 +76,16 @@ def val(net, data_loader):
             vectors.append(net(data.cuda(gpu_ids[0]))[0])
         domains = torch.cat(domains, dim=0)
         vectors = torch.cat(vectors, dim=0)
-        if data_name == 'dnim':
-            precise_ab, precise_ba, precise = metrics_dnim(names, domains, vectors)
+        if data_name in ['dnim', 'cityscapes']:
+            results['precise_ab'], results['precise_ba'], results['precise'] = [], [], []
+            if data_name == 'dnim':
+                precise_ab, precise_ba, precise = metrics_dnim(names, domains, vectors)
+            else:
+                precise_ab, precise_ba, precise = metrics_cityscapes(vectors)
             results['precise_ab'].append(precise_ab)
             results['precise_ba'].append(precise_ba)
             results['precise'].append(precise)
-            print('Val Epoch: [{}/{}] A->B: {:.2f}%, B->A: {:.2f}%, mAB: {:.2f}%'
+            print('Val Epoch: [{}/{}] A->B: {:.2f}%, B->A: {:.2f}%, AB: {:.2f}%'
                   .format(epoch, epochs, precise_ab * 100, precise_ba * 100, precise * 100))
     return precise, vectors
 

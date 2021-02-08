@@ -1,6 +1,7 @@
 import glob
 import os
 
+import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data.dataset import Dataset
@@ -75,4 +76,25 @@ def metrics_dnim(names, domains, vectors):
     idx = torch.argmax(sim, dim=-1)
     precise_ba = torch.eq(domain_a_labels[idx], domain_b_labels).float().mean()
     precise = (precise_ab + precise_ba) / 2
+    return precise_ab.item(), precise_ba.item(), precise.item()
+
+
+def metrics_cityscapes(vectors):
+    domain_a_vectors = vectors[:len(vectors) // 2]
+    domain_b_vectors = vectors[len(vectors) // 2:]
+    domain_labels = torch.arange(0, len(vectors) // 2, device=domain_a_vectors.device)
+    # domain a ---> domain b
+    sim = torch.mm(domain_a_vectors, domain_b_vectors.t().contiguous())
+    idx = torch.argmax(sim, dim=-1)
+    precise_ab = torch.eq(idx, domain_labels).float().mean()
+    # domain b ---> domain a
+    sim = torch.mm(domain_b_vectors, domain_a_vectors.t().contiguous())
+    idx = torch.argmax(sim, dim=-1)
+    precise_ba = torch.eq(idx, domain_labels).float().mean()
+    # cross domain
+    sim = torch.mm(vectors, vectors.t().contiguous())
+    sim.fill_diagonal_(-np.inf)
+    idx = torch.argmax(sim, dim=-1)
+    label = torch.cat((domain_labels + len(vectors) // 2, domain_labels), dim=0)
+    precise = torch.eq(idx, label).float().mean()
     return precise_ab.item(), precise_ba.item(), precise.item()
