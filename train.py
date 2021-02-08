@@ -10,7 +10,7 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
 from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss, DaCoLoss
-from utils import DomainDataset
+from utils import DomainDataset, metrics_dnim
 
 # for reproducibility
 np.random.seed(0)
@@ -23,7 +23,7 @@ def train(net_q, data_loader, train_optimizer):
         global model_k
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
-    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, __, pos_index in train_bar:
+    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, _, pos_index in train_bar:
         ori_img_1, ori_img_2 = ori_img_1.cuda(gpu_ids[0]), ori_img_2.cuda(gpu_ids[0])
         _, ori_proj_1 = net_q(ori_img_1)
 
@@ -66,18 +66,24 @@ def train(net_q, data_loader, train_optimizer):
 
 
 # val for one epoch
-def val(net, test_data_loader):
+def val(net, data_loader):
     net.eval()
-    image_names, feature_bank, feature_vectors = [], [], {}
+    names, domains, vectors = [], [], []
     with torch.no_grad():
-        # generate feature bank
-        for data, _, image_name in tqdm(test_data_loader, desc='Feature extracting', dynamic_ncols=True):
-            image_names += image_name
-            feature_bank.append(net(data.to(gpu_ids))[0])
-        feature_bank = torch.cat(feature_bank, dim=0)
-    for index in range(len(image_names)):
-        feature_vectors[image_names[index].split('/')[-1]] = feature_bank[index]
-    return feature_vectors
+        for data, _, _, _, domain, image_name, _ in tqdm(data_loader, desc='Feature extracting', dynamic_ncols=True):
+            names += image_name
+            domains.append(domain)
+            vectors.append(net(data.cuda(gpu_ids[0]))[0])
+        domains = torch.cat(domains, dim=0)
+        vectors = torch.cat(vectors, dim=0)
+        if data_name == 'dnim':
+            precise_ab, precise_ba, precise = metrics_dnim(names, domains, vectors)
+            results['precise_ab'].append(precise_ab)
+            results['precise_ba'].append(precise_ba)
+            results['precise'].append(precise)
+            print('Val Epoch: [{}/{}] A->B: {:.2f}%, B->A: {:.2f}%, mAB: {:.2f}%'
+                  .format(epoch, epochs, precise_ab * 100, precise_ba * 100, precise * 100))
+    return precise, vectors
 
 
 if __name__ == '__main__':

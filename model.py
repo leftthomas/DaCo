@@ -126,18 +126,18 @@ class DaCoLoss(nn.Module):
         self.lamda = lamda
         self.temperature = temperature
 
-    def forward(self, proj_1, proj_2):
-        batch_size = proj_1.size(0)
-        # [2*B, Dim]
-        out = torch.cat([proj_1, proj_2], dim=0)
-        # [2*B, 2*B]
+    def forward(self, ori_proj_1, ori_proj_2, gen_proj_1, gen_proj_2):
+        batch_size = ori_proj_1.size(0)
+        # [4*B, Dim]
+        out = torch.cat([ori_proj_1, ori_proj_2, gen_proj_1, gen_proj_2], dim=0)
+        # [4*B, 4*B]
         sim_matrix = torch.exp(torch.mm(out, out.t().contiguous()) / self.temperature)
-        mask = (torch.ones_like(sim_matrix) - torch.eye(2 * batch_size, device=sim_matrix.device)).bool()
-        # [2*B, 2*B-1]
-        sim_matrix = sim_matrix.masked_select(mask).view(2 * batch_size, -1)
+        mask = (torch.ones_like(sim_matrix) - torch.eye(4 * batch_size, device=sim_matrix.device)).bool()
+        # [4*B, 4*B-1]
+        sim_matrix = sim_matrix.masked_select(mask).view(4 * batch_size, -1)
 
         # compute loss
-        pos_sim = torch.exp(torch.sum(proj_1 * proj_2, dim=-1) / self.temperature)
+        pos_sim = torch.exp(torch.sum(ori_proj_1 * ori_proj_2, dim=-1) / self.temperature)
         # [2*B]
         pos_sim = torch.cat([pos_sim, pos_sim], dim=0)
         loss = (- torch.log(pos_sim / sim_matrix.sum(dim=-1))).mean()
