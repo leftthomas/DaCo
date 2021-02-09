@@ -44,9 +44,9 @@ class DomainDataset(Dataset):
 
         if trial and split == 'train':
             self.original_images = domain_a_images[:len(domain_a_images) // 2] \
-                                   + domain_b_images[len(domain_a_images) // 2:]
-            self.generated_images = domain_a_generated[:len(domain_a_images) // 2] \
-                                    + domain_b_generated[len(domain_a_images) // 2:]
+                                   + domain_b_images[len(domain_b_images) // 2:]
+            self.generated_images = domain_a_generated[:len(domain_a_generated) // 2] \
+                                    + domain_b_generated[len(domain_b_generated) // 2:]
         else:
             self.original_images = domain_a_images + domain_b_images
             self.generated_images = domain_a_generated + domain_b_generated
