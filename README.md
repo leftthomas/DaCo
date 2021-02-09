@@ -34,7 +34,7 @@ optional arguments:
 --ranks                       Selected recall [default value is '1,2,4,8']
 --save_root                   Result saved root path [default value is 'result']
 --trial                       Use half data to trial [default value is False]
---lamda                       Lambda used for the weight of soft constrain [default value is 0.9]
+--lamda                       Lambda used for the weight of soft constrain [default value is 0.8]
 --negs                        Negative sample number [default value is 4096]
 --momentum                    Momentum used for the update of memory bank [default value is 0.5]
 ```
