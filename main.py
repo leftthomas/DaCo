@@ -19,8 +19,6 @@ torch.manual_seed(0)
 
 # train for one epoch
 def train(net_q, data_loader, train_optimizer):
-    if method_name == 'moco':
-        global model_k
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, _, pos_index in train_bar:
@@ -100,10 +98,10 @@ if __name__ == '__main__':
                         help='Method name')
     parser.add_argument('--proj_dim', default=128, type=int, help='Projected feature dim for computing loss')
     parser.add_argument('--temperature', default=0.07, type=float, help='Temperature used in softmax')
-    parser.add_argument('--batch_size', default=64, type=int, help='Number of images in each mini-batch')
+    parser.add_argument('--batch_size', default=16, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--iters', default=10000, type=int, help='Number of bp over the model to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
-    parser.add_argument('--ranks', default='1,10,20,30', type=str, help='Selected recall')
+    parser.add_argument('--ranks', default='1,2,4,8', type=str, help='Selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
     parser.add_argument('--trial', action='store_true', help='Use half data to trial')
     # args for DaCo

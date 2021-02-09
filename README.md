@@ -28,10 +28,10 @@ optional arguments:
 --method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
 --proj_dim                    Projected feature dim for computing loss [default value is 128]
 --temperature                 Temperature used in softmax [default value is 0.07]
---batch_size                  Number of images in each mini-batch [default value is 64]
+--batch_size                  Number of images in each mini-batch [default value is 16]
 --iters                       Number of bp over the model to train [default value is 10000]
 --gpu_ids                     Selected gpus to train [required]  
---ranks                       Selected recall [default value is '1,10,20,30']
+--ranks                       Selected recall [default value is '1,2,4,8']
 --save_root                   Result saved root path [default value is 'result']
 --trial                       Use half data to trial [default value is False]
 --lamda                       Lambda used for the weight of soft constrain [default value is 0.9]
