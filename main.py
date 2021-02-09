@@ -105,6 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
     parser.add_argument('--ranks', default='1,10,20,30', type=str, help='Selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
+    parser.add_argument('--trial', action='store_true', help='Use half data to trial')
     # args for DaCo
     parser.add_argument('--lamda', default=0.9, type=float, help='Lambda used for the weight of soft constrain')
     # args for NPID and MoCo
@@ -117,11 +118,11 @@ if __name__ == '__main__':
     data_root, data_name, method_name, gpu_ids = args.data_root, args.data_name, args.method_name, args.gpu_ids
     proj_dim, temperature, batch_size, iters = args.proj_dim, args.temperature, args.batch_size, args.iters
     save_root, lamda, negs, momentum = args.save_root, args.lamda, args.negs, args.momentum
-    ranks = [int(k) for k in args.ranks.split(',')]
+    trial, ranks = args.trial, [int(k) for k in args.ranks.split(',')]
 
     # data prepare
-    train_data = DomainDataset(data_root, data_name, split='train')
-    val_data = DomainDataset(data_root, data_name, split='val')
+    train_data = DomainDataset(data_root, data_name, split='train', trial=trial)
+    val_data = DomainDataset(data_root, data_name, split='val', trial=trial)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=8)
     # compute the epochs over the dataset

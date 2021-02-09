@@ -29,17 +29,27 @@ def get_transform(data_name, split='train'):
 
 
 class DomainDataset(Dataset):
-    def __init__(self, data_root, data_name, split='train'):
+    def __init__(self, data_root, data_name, split='train', trial=False):
         super(DomainDataset, self).__init__()
 
-        original_path = os.path.join(data_root, data_name, 'original', '*', split, '*.png')
-        self.original_images = glob.glob(original_path)
-        self.original_images.sort()
+        domain_a_images = glob.glob(os.path.join(data_root, data_name, 'original', 'domain_a', split, '*.png'))
+        domain_a_images.sort()
+        domain_b_images = glob.glob(os.path.join(data_root, data_name, 'original', 'domain_b', split, '*.png'))
+        domain_b_images.sort()
 
-        generated_path = os.path.join(data_root, data_name, 'generated', '*', split, '*.png')
-        self.generated_images = glob.glob(generated_path)
-        self.generated_images.sort()
+        domain_a_generated = glob.glob(os.path.join(data_root, data_name, 'generated', 'domain_a', split, '*.png'))
+        domain_a_generated.sort()
+        domain_b_generated = glob.glob(os.path.join(data_root, data_name, 'generated', 'domain_b', split, '*.png'))
+        domain_b_generated.sort()
 
+        if trial and split == 'train':
+            self.original_images = domain_a_images[:len(domain_a_images) // 2] \
+                                   + domain_b_images[len(domain_a_images) // 2:]
+            self.generated_images = domain_a_generated[:len(domain_a_images) // 2] \
+                                    + domain_b_generated[len(domain_a_images) // 2:]
+        else:
+            self.original_images = domain_a_images + domain_b_images
+            self.generated_images = domain_a_generated + domain_b_generated
         self.transform = get_transform(data_name, split)
 
     def __getitem__(self, index):
