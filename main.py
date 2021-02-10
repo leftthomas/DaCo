@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
     parser.add_argument('--trial', action='store_true', help='Use half data to trial')
     # args for DaCo
-    parser.add_argument('--lamda', default=0.9, type=float, help='Lambda used for the weight of soft constrain')
+    parser.add_argument('--lamda', default=0.8, type=float, help='Lambda used for the weight of soft constrain')
     # args for NPID and MoCo
     parser.add_argument('--negs', default=4096, type=int, help='Negative sample number')
     # args for MoCo
