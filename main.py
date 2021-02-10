@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import torch
+from torch.backends import cudnn
 from torch.nn import DataParallel
 from torch.optim import Adam
 from torch.utils.data.dataloader import DataLoader
@@ -15,6 +16,8 @@ from utils import DomainDataset, recall
 # for reproducibility
 np.random.seed(0)
 torch.manual_seed(0)
+cudnn.deterministic = True
+cudnn.benchmark = False
 
 
 # train for one epoch
