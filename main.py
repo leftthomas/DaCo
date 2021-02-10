@@ -14,8 +14,8 @@ from model import Model, SimCLRLoss, MoCoLoss, NPIDLoss, DaCoLoss
 from utils import DomainDataset, recall
 
 # for reproducibility
-np.random.seed(0)
-torch.manual_seed(0)
+np.random.seed(1)
+torch.manual_seed(1)
 cudnn.deterministic = True
 cudnn.benchmark = False
 
