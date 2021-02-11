@@ -155,7 +155,7 @@ if __name__ == '__main__':
         results['val_ab_recall@{}'.format(rank)] = []
         results['val_ba_recall@{}'.format(rank)] = []
         results['val_cross_recall@{}'.format(rank)] = []
-    save_name_pre = '{}_{}_{}_{}_{}_{}'.format(data_name, method_name, proj_dim, temperature, batch_size, epochs)
+    save_name_pre = '{}_{}'.format(data_name, method_name)
     if not os.path.exists(save_root):
         os.makedirs(save_root)
     best_precise = 0.0
