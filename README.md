@@ -24,7 +24,7 @@ data should be arranged like this, please refer the paper to acquire the details
 python main.py --data_name alderley --method_name simclr --gpu_ids 0,1
 optional arguments:
 --data_root                   Datasets root path [default value is 'data']
---data_name                   Dataset name [default value is 'dnim'](choices=['dnim', 'cityscapes', 'alderley'])
+--data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'alderley'])
 --method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
 --proj_dim                    Projected feature dim for computing loss [default value is 128]
 --temperature                 Temperature used in softmax [default value is 0.07]
@@ -33,7 +33,6 @@ optional arguments:
 --gpu_ids                     Selected gpus to train [required]  
 --ranks                       Selected recall [default value is '1,2,4,8']
 --save_root                   Result saved root path [default value is 'result']
---trial                       Use half data to trial [default value is False]
 --lamda                       Lambda used for the weight of soft constrain [default value is 0.8]
 --negs                        Negative sample number [default value is 4096]
 --momentum                    Momentum used for the update of memory bank [default value is 0.5]

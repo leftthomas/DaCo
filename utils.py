@@ -7,7 +7,7 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-normalizer = {'dnim': [(0.361, 0.337, 0.315), (0.191, 0.186, 0.177)],
+normalizer = {'tokyo': [(0.361, 0.337, 0.315), (0.191, 0.186, 0.177)],
               'cityscapes': [(0.223, 0.241, 0.222), (0.061, 0.062, 0.062)],
               'alderley': [(0.361, 0.374, 0.330), (0.206, 0.196, 0.189)]}
 
@@ -29,27 +29,16 @@ def get_transform(data_name, split='train'):
 
 
 class DomainDataset(Dataset):
-    def __init__(self, data_root, data_name, split='train', trial=False):
+    def __init__(self, data_root, data_name, split='train'):
         super(DomainDataset, self).__init__()
 
-        domain_a_images = glob.glob(os.path.join(data_root, data_name, 'original', 'domain_a', split, '*.png'))
-        domain_a_images.sort()
-        domain_b_images = glob.glob(os.path.join(data_root, data_name, 'original', 'domain_b', split, '*.png'))
-        domain_b_images.sort()
+        original_path = os.path.join(data_root, data_name, 'original', '*', split, '*.png')
+        self.original_images = glob.glob(original_path)
+        self.original_images.sort()
 
-        domain_a_generated = glob.glob(os.path.join(data_root, data_name, 'generated', 'domain_a', split, '*.png'))
-        domain_a_generated.sort()
-        domain_b_generated = glob.glob(os.path.join(data_root, data_name, 'generated', 'domain_b', split, '*.png'))
-        domain_b_generated.sort()
-
-        if trial and split == 'train':
-            self.original_images = domain_a_images[:len(domain_a_images) // 2] \
-                                   + domain_b_images[len(domain_b_images) // 2:]
-            self.generated_images = domain_a_generated[:len(domain_a_generated) // 2] \
-                                    + domain_b_generated[len(domain_b_generated) // 2:]
-        else:
-            self.original_images = domain_a_images + domain_b_images
-            self.generated_images = domain_a_generated + domain_b_generated
+        generated_path = os.path.join(data_root, data_name, 'generated', '*', split, '*.png')
+        self.generated_images = glob.glob(generated_path)
+        self.generated_images.sort()
         self.transform = get_transform(data_name, split)
 
     def __getitem__(self, index):
@@ -61,31 +50,19 @@ class DomainDataset(Dataset):
         generated_img = Image.open(generated_img_name)
         generated_img_1 = self.transform(generated_img)
         generated_img_2 = self.transform(generated_img)
-        domain = original_img_name.split('/')[-3] == 'domain_a'
-        img_name = os.path.basename(original_img_name)
-        return original_img_1, original_img_2, generated_img_1, generated_img_2, domain, img_name, index
+        return original_img_1, original_img_2, generated_img_1, generated_img_2, index
 
     def __len__(self):
         return len(self.original_images)
 
 
-def recall(vectors, names, domains, ranks):
-    if 'Image' not in names[0] and 'leftImg8bit' not in names[0]:
-        is_dnim = True
-    else:
-        is_dnim = False
-
-    if not is_dnim:
-        labels = torch.arange(len(vectors) // 2, device=vectors.device)
-        labels = torch.cat((labels, labels), dim=0)
-    else:
-        labels = torch.zeros(len(vectors), dtype=torch.long, device=vectors.device)
-        for i, name in enumerate(names):
-            labels[i] = int(name.split('_')[0])
-    a_vectors = vectors[domains, :]
-    b_vectors = vectors[~domains, :]
-    a_labels = labels[domains]
-    b_labels = labels[~domains]
+def recall(vectors, ranks):
+    labels = torch.arange(len(vectors) // 2, device=vectors.device)
+    labels = torch.cat((labels, labels), dim=0)
+    a_vectors = vectors[:len(vectors) // 2]
+    b_vectors = vectors[len(vectors) // 2:]
+    a_labels = labels[:len(vectors) // 2]
+    b_labels = labels[len(vectors) // 2:]
     # domain a ---> domain b
     sim_a = a_vectors.mm(b_vectors.t())
     idx_a = sim_a.topk(k=ranks[-1], dim=-1, largest=True)[1]

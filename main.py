@@ -24,7 +24,7 @@ cudnn.benchmark = False
 def train(net_q, data_loader, train_optimizer):
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
-    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, _, _, pos_index in train_bar:
+    for ori_img_1, ori_img_2, gen_img_1, gen_img_2, pos_index in train_bar:
         ori_img_1, ori_img_2 = ori_img_1.cuda(gpu_ids[0]), ori_img_2.cuda(gpu_ids[0])
         _, ori_proj_1 = net_q(ori_img_1)
 
@@ -69,15 +69,12 @@ def train(net_q, data_loader, train_optimizer):
 # val for one epoch
 def val(net, data_loader):
     net.eval()
-    names, domains, vectors = [], [], []
+    vectors = []
     with torch.no_grad():
-        for data, _, _, _, domain, image_name, _ in tqdm(data_loader, desc='Feature extracting', dynamic_ncols=True):
-            names += image_name
-            domains.append(domain)
+        for data, _, _, _, _ in tqdm(data_loader, desc='Feature extracting', dynamic_ncols=True):
             vectors.append(net(data.cuda(gpu_ids[0]))[0])
-        domains = torch.cat(domains, dim=0)
         vectors = torch.cat(vectors, dim=0)
-        acc_a, acc_b, acc = recall(vectors, names, domains, ranks)
+        acc_a, acc_b, acc = recall(vectors, ranks)
         precise = (acc_a[0] + acc_b[0] + acc[0]) / 3
         desc = 'Val Epoch: [{}/{}] '.format(epoch, epochs)
         for i, r in enumerate(ranks):
@@ -95,7 +92,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Model')
     # common args
     parser.add_argument('--data_root', default='data', type=str, help='Datasets root path')
-    parser.add_argument('--data_name', default='dnim', type=str, choices=['dnim', 'cityscapes', 'alderley'],
+    parser.add_argument('--data_name', default='tokyo', type=str, choices=['tokyo', 'cityscapes', 'alderley'],
                         help='Dataset name')
     parser.add_argument('--method_name', default='daco', type=str, choices=['daco', 'simclr', 'moco', 'npid'],
                         help='Method name')
@@ -106,7 +103,6 @@ if __name__ == '__main__':
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
     parser.add_argument('--ranks', default='1,2,4,8', type=str, help='Selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
-    parser.add_argument('--trial', action='store_true', help='Use half data to trial')
     # args for DaCo
     parser.add_argument('--lamda', default=0.8, type=float, help='Lambda used for the weight of soft constrain')
     # args for NPID and MoCo
@@ -119,11 +115,11 @@ if __name__ == '__main__':
     data_root, data_name, method_name, gpu_ids = args.data_root, args.data_name, args.method_name, args.gpu_ids
     proj_dim, temperature, batch_size, iters = args.proj_dim, args.temperature, args.batch_size, args.iters
     save_root, lamda, negs, momentum = args.save_root, args.lamda, args.negs, args.momentum
-    trial, ranks = args.trial, [int(k) for k in args.ranks.split(',')]
+    ranks = [int(k) for k in args.ranks.split(',')]
 
     # data prepare
-    train_data = DomainDataset(data_root, data_name, split='train', trial=trial)
-    val_data = DomainDataset(data_root, data_name, split='val', trial=trial)
+    train_data = DomainDataset(data_root, data_name, split='train')
+    val_data = DomainDataset(data_root, data_name, split='val')
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=8)
     # compute the epochs over the dataset
