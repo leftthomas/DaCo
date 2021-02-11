@@ -29,7 +29,7 @@ optional arguments:
 --data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'alderley'])
 --method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
 --proj_dim                    Projected feature dim for computing loss [default value is 128]
---temperature                 Temperature used in softmax [default value is 0.07]
+--temperature                 Temperature used in softmax [default value is 0.5]
 --batch_size                  Number of images in each mini-batch [default value is 16]
 --iters                       Number of bp over the model to train [default value is 10000]
 --gpu_ids                     Selected gpus to train [required]  
@@ -37,7 +37,19 @@ optional arguments:
 --save_root                   Result saved root path [default value is 'result']
 --lamda                       Lambda used for the weight of soft constrain [default value is 0.8]
 --negs                        Negative sample number [default value is 4096]
---momentum                    Momentum used for the update of memory bank [default value is 0.5]
+--momentum                    Momentum used for the update of memory bank or shadow model [default value is 0.5]
+```
+
+For example, to train `moco` on `cityscapes`:
+
+```
+python main.py --data_name cityscapes --method_name moco --batch_size 32 --gpu_ids 1 --momentum 0.999
+```
+
+to train `npid` on `tokyo`:
+
+```
+python main.py --data_name tokyo --method_name npid --batch_size 64 --gpu_ids 2 --momentum 0.5
 ```
 
 ## Results

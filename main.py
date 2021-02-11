@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--method_name', default='daco', type=str, choices=['daco', 'simclr', 'moco', 'npid'],
                         help='Method name')
     parser.add_argument('--proj_dim', default=128, type=int, help='Projected feature dim for computing loss')
-    parser.add_argument('--temperature', default=0.07, type=float, help='Temperature used in softmax')
+    parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
     parser.add_argument('--batch_size', default=16, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--iters', default=10000, type=int, help='Number of bp over the model to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
@@ -107,8 +107,8 @@ if __name__ == '__main__':
     parser.add_argument('--lamda', default=0.8, type=float, help='Lambda used for the weight of soft constrain')
     # args for NPID and MoCo
     parser.add_argument('--negs', default=4096, type=int, help='Negative sample number')
-    # args for MoCo
-    parser.add_argument('--momentum', default=0.5, type=float, help='Momentum used for the update of memory bank')
+    parser.add_argument('--momentum', default=0.5, type=float,
+                        help='Momentum used for the update of memory bank or shadow model')
 
     # args parse
     args = parser.parse_args()
