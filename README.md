@@ -13,15 +13,17 @@ conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 
 ## Dataset
 
-[DNIM](), [Cityscapes](https://www.cityscapes-dataset.com)
+[Tokyo 24/7](http://www.ok.ctrl.titech.ac.jp/~torii/project/247/)
+, [Cityscapes FoggyDBF](https://www.cityscapes-dataset.com)
 and [Alderley](https://wiki.qut.edu.au/pages/viewpage.action?pageId=181178395) datasets are used in this repo, you could
-download these datasets from official websites, or download them from [BaiduYun](), the extraction code is `abcd`. The
-data should be arranged like this, please refer the paper to acquire the details of `train/val` split.
+download these datasets from official websites, or download them
+from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data should be arranged like this, please refer
+the paper to acquire the details of `train/val` split.
 
 ## Usage
 
 ```
-python main.py --data_name alderley --method_name simclr --gpu_ids 0,1
+python main.py --data_name alderley --method_name simclr --gpu_ids 0 1
 optional arguments:
 --data_root                   Datasets root path [default value is 'data']
 --data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'alderley'])
