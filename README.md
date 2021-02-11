@@ -29,7 +29,7 @@ optional arguments:
 --data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'alderley'])
 --method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
 --proj_dim                    Projected feature dim for computing loss [default value is 128]
---temperature                 Temperature used in softmax [default value is 0.5]
+--temperature                 Temperature used in softmax [default value is 0.1]
 --batch_size                  Number of images in each mini-batch [default value is 16]
 --iters                       Number of bp over the model to train [default value is 10000]
 --gpu_ids                     Selected gpus to train [required]  
