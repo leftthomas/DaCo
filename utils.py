@@ -7,7 +7,7 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-normalizer = {'tokyo': [(0.335, 0.332, 0.320), (0.241, 0.237, 0.242)],
+normalizer = {'tokyo': [(0.335, 0.332, 0.320), (0.241, 0.237, 0.243)],
               'cityscapes': [(0.401, 0.437, 0.401), (0.186, 0.187, 0.187)],
               'alderley': [(0.390, 0.402, 0.354), (0.257, 0.245, 0.237)]}
 
