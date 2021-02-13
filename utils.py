@@ -7,9 +7,9 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-normalizer = {'tokyo': [(0.361, 0.337, 0.315), (0.191, 0.186, 0.177)],
-              'cityscapes': [(0.223, 0.241, 0.222), (0.061, 0.062, 0.062)],
-              'alderley': [(0.361, 0.374, 0.330), (0.206, 0.196, 0.189)]}
+normalizer = {'tokyo': [(0.335, 0.332, 0.320), (0.241, 0.237, 0.242)],
+              'cityscapes': [(0.401, 0.437, 0.401), (0.186, 0.187, 0.187)],
+              'alderley': [(0.390, 0.402, 0.354), (0.257, 0.245, 0.237)]}
 
 
 def get_transform(data_name, split='train'):
