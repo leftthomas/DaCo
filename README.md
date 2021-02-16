@@ -17,8 +17,8 @@ conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 , [Cityscapes FoggyDBF](https://www.cityscapes-dataset.com)
 and [Alderley](https://wiki.qut.edu.au/pages/viewpage.action?pageId=181178395) datasets are used in this repo, you could
 download these datasets from official websites, or download them
-from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data should be arranged like this, please refer
-the paper to acquire the details of `train/val` split.
+from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data should be rearranged, please refer the
+paper to acquire the details of `train/val` split.
 
 ## Usage
 
