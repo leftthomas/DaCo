@@ -97,18 +97,18 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <th rowspan="2">Download</th>
   </tr>
   <tr>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
   </tr>
 </thead>
 <tbody>
@@ -191,18 +191,18 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <th rowspan="2">Download</th>
   </tr>
   <tr>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
-    <td>R@1</td>
-    <td>R@2</td>
-    <td>R@4</td>
-    <td>R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
   </tr>
 </thead>
 <tbody>
