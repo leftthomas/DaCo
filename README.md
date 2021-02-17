@@ -1,6 +1,9 @@
 # DaCo
+
 A PyTorch implementation of DaCo based on ICMR 2021
 paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Localization]().
+
+![Network Architecture](result/structure.png)
 
 ## Requirements
 
@@ -80,7 +83,7 @@ to train `npid` on `tokyo`:
 python main.py --data_name tokyo --method_name npid --batch_size 64 --gpu_ids 2 --momentum 0.5
 ```
 
-## Results
+## Benchmarks
 
 The models are trained on one NVIDIA GTX TITAN (12G) GPU. `Adam` is used to optimize the model, `lr` is `1e-3`
 and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr` and `moco`, `64` for `npid`.
@@ -272,3 +275,21 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
   </tr>
 </tbody>
 </table>
+
+## Results
+
+### A --> B
+
+![ab](result/retreval_ab.png)
+
+### B --> A
+
+![ba](result/retreval_ba.png)
+
+### A <--> B
+
+![cross](result/retreval_cross.png)
+
+### T-SNE
+
+![tsne](result/tsne.png)
