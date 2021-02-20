@@ -92,7 +92,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Model')
     # common args
     parser.add_argument('--data_root', default='data', type=str, help='Datasets root path')
-    parser.add_argument('--data_name', default='tokyo', type=str, choices=['tokyo', 'cityscapes', 'alderley'],
+    parser.add_argument('--data_name', default='tokyo', type=str, choices=['tokyo', 'cityscapes', 'synthia'],
                         help='Dataset name')
     parser.add_argument('--method_name', default='daco', type=str, choices=['daco', 'simclr', 'moco', 'npid'],
                         help='Method name')

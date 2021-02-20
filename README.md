@@ -18,10 +18,10 @@ conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 
 [Tokyo 24/7](http://www.ok.ctrl.titech.ac.jp/~torii/project/247/)
 , [Cityscapes FoggyDBF](https://www.cityscapes-dataset.com)
-and [Alderley](https://wiki.qut.edu.au/pages/viewpage.action?pageId=181178395) datasets are used in this repo, you could
-download these datasets from official websites, or download them
-from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data should be rearranged, please refer the
-paper to acquire the details of `train/val` split. The data directory structure is shown as follows:
+and [Synthia](https://synthia-dataset.net/downloads/) datasets are used in this repo, you could download these datasets
+from official websites, or download them from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data
+should be rearranged, please refer the paper to acquire the details of `train/val` split. The data directory structure
+is shown as follows:
 
  ```
 ├──tokyo
@@ -46,7 +46,7 @@ paper to acquire the details of `train/val` split. The data directory structure 
 ├──cityscapes
    same structure as tokyo
    ...
-├──alderley
+├──synthia
    same structure as tokyo 
    ... 
 ```
@@ -54,10 +54,10 @@ paper to acquire the details of `train/val` split. The data directory structure 
 ## Usage
 
 ```
-python main.py --data_name alderley --method_name simclr --gpu_ids 0 1
+python main.py --data_name synthia --method_name simclr --gpu_ids 0 1
 optional arguments:
 --data_root                   Datasets root path [default value is 'data']
---data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'alderley'])
+--data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'synthia'])
 --method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
 --proj_dim                    Projected feature dim for computing loss [default value is 128]
 --temperature                 Temperature used in softmax [default value is 0.1]
@@ -276,19 +276,113 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
 </tbody>
 </table>
 
+### Synthia
+
+<table>
+<thead>
+  <tr>
+    <th rowspan="2">Method</th>
+    <th colspan="4">Sunset --&gt; Rainy Night</th>
+    <th colspan="4">Rainy Night --&gt; Sunset</th>
+    <th colspan="4">Sunset &lt;--&gt; Rainy Night</th>
+    <th rowspan="2">Download</th>
+  </tr>
+  <tr>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+    <td align="center">R@1</td>
+    <td align="center">R@2</td>
+    <td align="center">R@4</td>
+    <td align="center">R@8</td>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="center">NPID</td>
+    <td align="center">34.20</td>
+    <td align="center">46.00</td>
+    <td align="center">55.20</td>
+    <td align="center">64.80</td>
+    <td align="center">38.40</td>
+    <td align="center">46.60</td>
+    <td align="center">58.00</td>
+    <td align="center">68.80</td>
+    <td align="center">4.20</td>
+    <td align="center">6.00</td>
+    <td align="center">7.90</td>
+    <td align="center">11.90</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1oUbOqWIJaJbtUDqcqmklgw">bbiv</a></td>
+  </tr>
+  <tr>
+    <td align="center">MoCo</td>
+    <td align="center">0.40</td>
+    <td align="center">0.80</td>
+    <td align="center">1.00</td>
+    <td align="center">2.20</td>
+    <td align="center">0.40</td>
+    <td align="center">0.60</td>
+    <td align="center">1.00</td>
+    <td align="center">1.80</td>
+    <td align="center">0.00</td>
+    <td align="center">0.00</td>
+    <td align="center">0.10</td>
+    <td align="center">0.10</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1iR0_2kL9wq44mKM_-sfr_w">ma2a</a></td>
+  </tr>
+  <tr>
+    <td align="center">SimCLR</td>
+    <td align="center">43.00</td>
+    <td align="center">55.60</td>
+    <td align="center">67.20</td>
+    <td align="center">76.60</td>
+    <td align="center">69.40</td>
+    <td align="center">80.40</td>
+    <td align="center">89.20</td>
+    <td align="center">94.00</td>
+    <td align="center">2.30</td>
+    <td align="center">3.70</td>
+    <td align="center">5.20</td>
+    <td align="center">7.80</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
+  </tr>
+  <tr>
+    <td align="center">DaCo</td>
+    <td align="center"><b>96.40</b></td>
+    <td align="center"><b>99.00</b></td>
+    <td align="center"><b>99.60</b></td>
+    <td align="center"><b>99.80</b></td>
+    <td align="center"><b>95.60</b></td>
+    <td align="center"><b>97.80</b></td>
+    <td align="center"><b>99.40</b></td>
+    <td align="center"><b>99.80</b></td>
+    <td align="center"><b>47.70</b></td>
+    <td align="center"><b>65.30</b></td>
+    <td align="center"><b>80.10</b></td>
+    <td align="center"><b>91.00</b></td>
+    <td align="center"><a href="https://pan.baidu.com/s/1ForxWPJ_k3Eq_EXgLtpHCA">azvx</a></td>
+  </tr>
+</tbody>
+</table>
+
 ## Results
 
-### A --> B
+### Tokyo 24/7
 
-![ab](result/retreval_ab.png)
+![tokyo](result/tokyo.png)
 
-### B --> A
+### Foggy Cityscapes
 
-![ba](result/retreval_ba.png)
+![cityscapes](result/cityscapes.png)
 
-### A <--> B
+### Synthia
 
-![cross](result/retreval_cross.png)
+![synthia](result/synthia.png)
 
 ### T-SNE
 
