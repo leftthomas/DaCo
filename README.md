@@ -16,12 +16,11 @@ conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 
 ## Dataset
 
-[Tokyo 24/7](http://www.ok.ctrl.titech.ac.jp/~torii/project/247/)
-, [Cityscapes FoggyDBF](https://www.cityscapes-dataset.com)
-and [Synthia](https://synthia-dataset.net/downloads/) datasets are used in this repo, you could download these datasets
-from official websites, or download them from [MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data
-should be rearranged, please refer the paper to acquire the details of `train/val` split. The data directory structure
-is shown as follows:
+[Tokyo 24/7](http://www.ok.ctrl.titech.ac.jp/~torii/project/247/),
+[Cityscapes FoggyDBF](https://www.cityscapes-dataset.com) and [Synthia Seqs](https://synthia-dataset.net/downloads/)
+datasets are used in this repo, you could download these datasets from official websites, or download them from
+[MEGA](https://mega.nz/folder/kx53iYoL#u_Zc6ogPokaTRVM6qYn3ZA). The data should be rearranged, please refer the paper to
+acquire the details of `train/val` split. The data directory structure is shown as follows:
 
  ```
 ├──tokyo
@@ -276,7 +275,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
 </tbody>
 </table>
 
-### Synthia
+### Synthia Seqs
 
 <table>
 <thead>
@@ -305,66 +304,66 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
 <tbody>
   <tr>
     <td align="center">NPID</td>
-    <td align="center">34.20</td>
-    <td align="center">46.00</td>
-    <td align="center">55.20</td>
-    <td align="center">64.80</td>
-    <td align="center">38.40</td>
-    <td align="center">46.60</td>
-    <td align="center">58.00</td>
-    <td align="center">68.80</td>
-    <td align="center">4.20</td>
-    <td align="center">6.00</td>
-    <td align="center">7.90</td>
-    <td align="center">11.90</td>
+    <td align="center">6.67</td>
+    <td align="center">6.67</td>
+    <td align="center">8.33</td>
+    <td align="center">11.67</td>
+    <td align="center">5.00</td>
+    <td align="center">6.67</td>
+    <td align="center">8.33</td>
+    <td align="center">13.33</td>
+    <td align="center">2.50</td>
+    <td align="center">5.00</td>
+    <td align="center">5.00</td>
+    <td align="center">6.67</td>
     <td align="center"><a href="https://pan.baidu.com/s/1oUbOqWIJaJbtUDqcqmklgw">bbiv</a></td>
   </tr>
   <tr>
     <td align="center">MoCo</td>
-    <td align="center">0.40</td>
-    <td align="center">0.80</td>
-    <td align="center">1.00</td>
-    <td align="center">2.20</td>
-    <td align="center">0.40</td>
-    <td align="center">0.60</td>
-    <td align="center">1.00</td>
-    <td align="center">1.80</td>
-    <td align="center">0.00</td>
-    <td align="center">0.00</td>
-    <td align="center">0.10</td>
-    <td align="center">0.10</td>
+    <td align="center">10.00</td>
+    <td align="center">11.67</td>
+    <td align="center">21.67</td>
+    <td align="center">26.67</td>
+    <td align="center">10.00</td>
+    <td align="center">11.67</td>
+    <td align="center">18.33</td>
+    <td align="center">33.33</td>
+    <td align="center">1.67</td>
+    <td align="center">2.50</td>
+    <td align="center">2.50</td>
+    <td align="center">5.00</td>
     <td align="center"><a href="https://pan.baidu.com/s/1iR0_2kL9wq44mKM_-sfr_w">ma2a</a></td>
   </tr>
   <tr>
     <td align="center">SimCLR</td>
-    <td align="center">43.00</td>
-    <td align="center">55.60</td>
-    <td align="center">67.20</td>
-    <td align="center">76.60</td>
-    <td align="center">69.40</td>
-    <td align="center">80.40</td>
-    <td align="center">89.20</td>
-    <td align="center">94.00</td>
-    <td align="center">2.30</td>
-    <td align="center">3.70</td>
-    <td align="center">5.20</td>
-    <td align="center">7.80</td>
+    <td align="center">25.00</td>
+    <td align="center">35.00</td>
+    <td align="center">40.00</td>
+    <td align="center">53.33</td>
+    <td align="center">20.00</td>
+    <td align="center">26.67</td>
+    <td align="center">41.67</td>
+    <td align="center">48.33</td>
+    <td align="center">6.67</td>
+    <td align="center">9.17</td>
+    <td align="center">15.83</td>
+    <td align="center">24.17</td>
     <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
   </tr>
   <tr>
     <td align="center">DaCo</td>
-    <td align="center"><b>96.40</b></td>
-    <td align="center"><b>99.00</b></td>
-    <td align="center"><b>99.60</b></td>
-    <td align="center"><b>99.80</b></td>
-    <td align="center"><b>95.60</b></td>
-    <td align="center"><b>97.80</b></td>
-    <td align="center"><b>99.40</b></td>
-    <td align="center"><b>99.80</b></td>
-    <td align="center"><b>47.70</b></td>
-    <td align="center"><b>65.30</b></td>
-    <td align="center"><b>80.10</b></td>
-    <td align="center"><b>91.00</b></td>
+    <td align="center"><b>46.67</b></td>
+    <td align="center"><b>66.67</b></td>
+    <td align="center"><b>75.00</b></td>
+    <td align="center"><b>88.33</b></td>
+    <td align="center"><b>45.00</b></td>
+    <td align="center"><b>50.00</b></td>
+    <td align="center"><b>70.00</b></td>
+    <td align="center"><b>86.67</b></td>
+    <td align="center"><b>28.33</b></td>
+    <td align="center"><b>39.17</b></td>
+    <td align="center"><b>50.00</b></td>
+    <td align="center"><b>67.50</b></td>
     <td align="center"><a href="https://pan.baidu.com/s/1ForxWPJ_k3Eq_EXgLtpHCA">azvx</a></td>
   </tr>
 </tbody>
@@ -380,7 +379,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
 
 ![cityscapes](result/cityscapes.png)
 
-### Synthia
+### Synthia Seqs
 
 ![synthia](result/synthia.png)
 
