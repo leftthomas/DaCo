@@ -316,7 +316,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <td align="center">5.00</td>
     <td align="center">5.00</td>
     <td align="center">6.67</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1oUbOqWIJaJbtUDqcqmklgw">bbiv</a></td>
+    <td align="center"><a href="https://pan.baidu.com/s/1zpzPy9UvB9K3k4l0j0zF5w">bgua</a></td>
   </tr>
   <tr>
     <td align="center">MoCo</td>
@@ -332,7 +332,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <td align="center">2.50</td>
     <td align="center">2.50</td>
     <td align="center">5.00</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1iR0_2kL9wq44mKM_-sfr_w">ma2a</a></td>
+    <td align="center"><a href="https://pan.baidu.com/s/1GFo1RrNufn3WeLHLxrJafA">sw7f</a></td>
   </tr>
   <tr>
     <td align="center">SimCLR</td>
@@ -348,7 +348,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <td align="center">9.17</td>
     <td align="center">15.83</td>
     <td align="center">24.17</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
+    <td align="center"><a href="https://pan.baidu.com/s/1l5D86pAkI9duvDH_AQOZVQ">afeg</a></td>
   </tr>
   <tr>
     <td align="center">DaCo</td>
@@ -364,7 +364,7 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <td align="center"><b>39.17</b></td>
     <td align="center"><b>50.00</b></td>
     <td align="center"><b>67.50</b></td>
-    <td align="center"><a href="https://pan.baidu.com/s/1ForxWPJ_k3Eq_EXgLtpHCA">azvx</a></td>
+    <td align="center"><a href="https://pan.baidu.com/s/1PHednJb8PQ2FVb6Ht8jJTg">sasq</a></td>
   </tr>
 </tbody>
 </table>
