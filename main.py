@@ -99,7 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--proj_dim', default=128, type=int, help='Projected feature dim for computing loss')
     parser.add_argument('--temperature', default=0.1, type=float, help='Temperature used in softmax')
     parser.add_argument('--batch_size', default=16, type=int, help='Number of images in each mini-batch')
-    parser.add_argument('--iters', default=40000, type=int, help='Number of bp over the model to train')
+    parser.add_argument('--iters', default=10000, type=int, help='Number of bp over the model to train')
     parser.add_argument('--gpu_ids', nargs='+', type=int, required=True, help='Selected gpus to train')
     parser.add_argument('--ranks', default='1,2,4,8', type=str, help='Selected recall')
     parser.add_argument('--save_root', default='result', type=str, help='Result saved root path')
