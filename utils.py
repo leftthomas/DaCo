@@ -7,15 +7,15 @@ from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 
-normalizer = {'tokyo': [(0.335, 0.332, 0.320), (0.241, 0.237, 0.243)],
+normalizer = {'tokyo': [(0.334, 0.332, 0.320), (0.241, 0.237, 0.242)],
               'cityscapes': [(0.401, 0.437, 0.401), (0.186, 0.187, 0.187)],
-              'synthia': [(0.244, 0.221, 0.177), (0.193, 0.174, 0.143)]}
+              'synthia': [(0.244, 0.221, 0.177), (0.192, 0.174, 0.144)]}
 
 
 def get_transform(data_name, split='train'):
     if split == 'train':
         return transforms.Compose([
-            transforms.RandomResizedCrop(256, scale=(0.2, 1.0)),
+            transforms.RandomResizedCrop(256, scale=(1.0, 1.12)),
             transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
             transforms.RandomGrayscale(p=0.2),
             transforms.RandomHorizontalFlip(p=0.5),
@@ -32,11 +32,11 @@ class DomainDataset(Dataset):
     def __init__(self, data_root, data_name, split='train'):
         super(DomainDataset, self).__init__()
 
-        original_path = os.path.join(data_root, data_name, 'original', '*', split, '*.png')
+        original_path = os.path.join(data_root, data_name, 'original', '*', split, '*.jpg')
         self.original_images = glob.glob(original_path)
         self.original_images.sort()
 
-        generated_path = os.path.join(data_root, data_name, 'generated', '*', split, '*.png')
+        generated_path = os.path.join(data_root, data_name, 'generated', '*', split, '*.jpg')
         self.generated_images = glob.glob(generated_path)
         self.generated_images.sort()
         self.transform = get_transform(data_name, split)
