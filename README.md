@@ -1,7 +1,7 @@
 # DaCo
 
-A PyTorch implementation of DaCo based on ICMR 2021
-paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Localization]().
+A PyTorch implementation of DaCo based on PG 2021
+paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Place Recognition]().
 
 ![Network Architecture](result/structure.png)
 
@@ -11,7 +11,7 @@ paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Localization]().
 - [PyTorch](https://pytorch.org)
 
 ```
-conda install pytorch=1.7.0 torchvision torchaudio cudatoolkit=11.0 -c pytorch
+conda install pytorch=1.7.0 torchvision cudatoolkit=11.0 -c pytorch
 ```
 
 ## Dataset
@@ -27,17 +27,17 @@ acquire the details of `train/val` split. The data directory structure is shown 
    ├── original (orignal images)
        ├── domain_a (day images)
            ├── train
-               ├── day_00001.png
+               ├── day_00001.jpg
                └── ...
            ├── val
-               ├── day_00301.png
+               ├── day_00301.jpg
                └── ...
        ├── domain_b (night images)
            ├── train
-               ├── night_00001.png
+               ├── night_00001.jpg
                └── ...
            ├── val
-               ├── night_00301.png
+               ├── night_00301.jpg
                └── ...
    ├── generated (generated images)
        same structure as original
@@ -53,17 +53,16 @@ acquire the details of `train/val` split. The data directory structure is shown 
 ## Usage
 
 ```
-python main.py --data_name synthia --method_name simclr --gpu_ids 0 1
+python main.py --data_name synthia --method_name simclr
 optional arguments:
 --data_root                   Datasets root path [default value is 'data']
 --data_name                   Dataset name [default value is 'tokyo'](choices=['tokyo', 'cityscapes', 'synthia'])
---method_name                 Method name [default value is 'daco'](choices=['daco', 'simclr', 'moco', 'npid'])
---proj_dim                    Projected feature dim for computing loss [default value is 128]
+--method_name                 Method name [default value is 'daco'](choices=['daco', simsiam', 'simclr', 'moco', 'npid'])
+--hidden_dim                  Hidden feature dim for projection head [default value is 512]
 --temperature                 Temperature used in softmax [default value is 0.1]
 --batch_size                  Number of images in each mini-batch [default value is 16]
 --iters                       Number of bp over the model to train [default value is 10000]
---gpu_ids                     Selected gpus to train [required]  
---ranks                       Selected recall [default value is '1,2,4,8']
+--ranks                       Selected recall [default value is [1, 2, 4, 8]]
 --save_root                   Result saved root path [default value is 'result']
 --lamda                       Lambda used for the weight of soft constrain [default value is 0.8]
 --negs                        Negative sample number [default value is 4096]
@@ -73,20 +72,20 @@ optional arguments:
 For example, to train `moco` on `cityscapes`:
 
 ```
-python main.py --data_name cityscapes --method_name moco --batch_size 32 --gpu_ids 1 --momentum 0.999
+python main.py --data_name cityscapes --method_name moco --batch_size 32 --momentum 0.999
 ```
 
 to train `npid` on `tokyo`:
 
 ```
-python main.py --data_name tokyo --method_name npid --batch_size 64 --gpu_ids 2 --momentum 0.5
+python main.py --data_name tokyo --method_name npid --batch_size 64 --momentum 0.5
 ```
 
 ## Benchmarks
 
 The models are trained on one NVIDIA GTX TITAN (12G) GPU. `Adam` is used to optimize the model, `lr` is `1e-3`
-and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr` and `moco`, `64` for `npid`.
-`momentum` is `0.999` for `moco`, other hyper-parameters are the default values.
+and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simsiam`, `simclr` and `moco`, `64` for `npid`.
+`momentum` is `0.999` for `moco`, `0.5` for `npid`, other hyper-parameters are the default values.
 
 ### Tokyo 24/7
 <table>
@@ -148,6 +147,22 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
   </tr>
   <tr>
     <td align="center">SimCLR</td>
+    <td align="center">29.33</td>
+    <td align="center">33.33</td>
+    <td align="center">45.33</td>
+    <td align="center">58.67</td>
+    <td align="center">32.00</td>
+    <td align="center">40.00</td>
+    <td align="center">46.67</td>
+    <td align="center">57.33</td>
+    <td align="center">6.00</td>
+    <td align="center">10.00</td>
+    <td align="center">14.00</td>
+    <td align="center">20.00</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1yZhkba1EU79LwqgizDzTUA">agdw</a></td>
+  </tr>
+  <tr>
+    <td align="center">SimSiam</td>
     <td align="center">29.33</td>
     <td align="center">33.33</td>
     <td align="center">45.33</td>
@@ -257,6 +272,22 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
     <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
   </tr>
   <tr>
+    <td align="center">SimSiam</td>
+    <td align="center">43.00</td>
+    <td align="center">55.60</td>
+    <td align="center">67.20</td>
+    <td align="center">76.60</td>
+    <td align="center">69.40</td>
+    <td align="center">80.40</td>
+    <td align="center">89.20</td>
+    <td align="center">94.00</td>
+    <td align="center">2.30</td>
+    <td align="center">3.70</td>
+    <td align="center">5.20</td>
+    <td align="center">7.80</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
+  </tr>
+  <tr>
     <td align="center">DaCo</td>
     <td align="center"><b>96.40</b></td>
     <td align="center"><b>99.00</b></td>
@@ -336,6 +367,22 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simclr`
   </tr>
   <tr>
     <td align="center">SimCLR</td>
+    <td align="center">25.00</td>
+    <td align="center">35.00</td>
+    <td align="center">40.00</td>
+    <td align="center">53.33</td>
+    <td align="center">20.00</td>
+    <td align="center">26.67</td>
+    <td align="center">41.67</td>
+    <td align="center">48.33</td>
+    <td align="center">6.67</td>
+    <td align="center">9.17</td>
+    <td align="center">15.83</td>
+    <td align="center">24.17</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1l5D86pAkI9duvDH_AQOZVQ">afeg</a></td>
+  </tr>
+  <tr>
+    <td align="center">SimSiam</td>
     <td align="center">25.00</td>
     <td align="center">35.00</td>
     <td align="center">40.00</td>
