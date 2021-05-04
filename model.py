@@ -5,7 +5,7 @@ from torchvision.models.resnet import resnet50
 
 
 class Model(nn.Module):
-    def __init__(self, proj_dim):
+    def __init__(self, hidden_dim):
         super(Model, self).__init__()
 
         self.f = []
@@ -15,8 +15,8 @@ class Model(nn.Module):
         # encoder
         self.f = nn.Sequential(*self.f)
         # projection head
-        self.g = nn.Sequential(nn.Linear(2048, 512, bias=False), nn.BatchNorm1d(512),
-                               nn.ReLU(inplace=True), nn.Linear(512, proj_dim, bias=True))
+        self.g = nn.Sequential(nn.Linear(2048, hidden_dim, bias=False), nn.BatchNorm1d(hidden_dim),
+                               nn.ReLU(inplace=True), nn.Linear(hidden_dim, 2048, bias=True))
 
     def forward(self, x):
         x = self.f(x)
@@ -118,6 +118,17 @@ class NPIDLoss(nn.Module):
         pos_samples = proj.detach().cpu() * self.momentum + pos_samples * (1.0 - self.momentum)
         pos_samples = F.normalize(pos_samples, dim=-1)
         self.bank.index_copy_(0, pos_index, pos_samples)
+
+
+class SimSiamLoss(nn.Module):
+    def __init__(self):
+        super(SimSiamLoss, self).__init__()
+
+    def forward(self, feature_1, feature_2, proj_1, proj_2):
+        sim_1 = -(proj_1 * feature_2.detach()).sum(dim=-1).mean()
+        sim_2 = -(proj_2 * feature_1.detach()).sum(dim=-1).mean()
+        loss = 0.5 * sim_1 + 0.5 * sim_2
+        return loss
 
 
 class DaCoLoss(nn.Module):
