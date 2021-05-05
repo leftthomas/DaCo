@@ -15,7 +15,7 @@ normalizer = {'tokyo': [(0.334, 0.332, 0.320), (0.241, 0.237, 0.242)],
 def get_transform(data_name, split='train'):
     if split == 'train':
         return transforms.Compose([
-            transforms.RandomResizedCrop(256, scale=(1.0, 1.12)),
+            transforms.RandomResizedCrop(256, scale=(0.2, 1.0)),
             transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
             transforms.RandomGrayscale(p=0.2),
             transforms.RandomHorizontalFlip(p=0.5),
