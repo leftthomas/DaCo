@@ -115,30 +115,30 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simsiam
 <tbody>
   <tr>
     <td align="center">NPID</td>
-    <td align="center">8.00</td>
-    <td align="center">9.33</td>
-    <td align="center">10.67</td>
-    <td align="center">14.67</td>
-    <td align="center">8.00</td>
-    <td align="center">9.33</td>
-    <td align="center">10.67</td>
-    <td align="center">12.00</td>
-    <td align="center">3.33</td>
-    <td align="center">6.00</td>
     <td align="center">6.67</td>
+    <td align="center">10.67</td>
+    <td align="center">17.33</td>
+    <td align="center">28.00</td>
     <td align="center">8.00</td>
+    <td align="center">12.00</td>
+    <td align="center">16.00</td>
+    <td align="center">21.33</td>
+    <td align="center">2.00</td>
+    <td align="center">4.00</td>
+    <td align="center">5.33</td>
+    <td align="center">10.67</td>
     <td align="center"><a href="https://pan.baidu.com/s/1Y9shBKadeBhkifopHexioA">r2bg</a></td>
   </tr>
   <tr>
     <td align="center">MoCo</td>
     <td align="center">5.33</td>
-    <td align="center">5.33</td>
-    <td align="center">8.00</td>
+    <td align="center">6.67</td>
+    <td align="center">12.00</td>
     <td align="center">17.33</td>
     <td align="center">6.67</td>
-    <td align="center">8.00</td>
+    <td align="center">9.33</td>
     <td align="center">12.00</td>
-    <td align="center">21.33</td>
+    <td align="center">16.00</td>
     <td align="center">0.00</td>
     <td align="center">0.00</td>
     <td align="center">0.00</td>
@@ -147,50 +147,50 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simsiam
   </tr>
   <tr>
     <td align="center">SimCLR</td>
-    <td align="center">29.33</td>
-    <td align="center">33.33</td>
-    <td align="center">45.33</td>
-    <td align="center">58.67</td>
+    <td align="center">25.33</td>
     <td align="center">32.00</td>
-    <td align="center">40.00</td>
+    <td align="center">45.33</td>
+    <td align="center">56.00</td>
+    <td align="center">33.33</td>
+    <td align="center">37.33</td>
     <td align="center">46.67</td>
-    <td align="center">57.33</td>
-    <td align="center">6.00</td>
-    <td align="center">10.00</td>
+    <td align="center">58.67</td>
+    <td align="center">8.67</td>
+    <td align="center">9.33</td>
     <td align="center">14.00</td>
-    <td align="center">20.00</td>
+    <td align="center">18.67</td>
     <td align="center"><a href="https://pan.baidu.com/s/1yZhkba1EU79LwqgizDzTUA">agdw</a></td>
   </tr>
   <tr>
     <td align="center">SimSiam</td>
-    <td align="center">29.33</td>
-    <td align="center">33.33</td>
-    <td align="center">45.33</td>
-    <td align="center">58.67</td>
-    <td align="center">32.00</td>
-    <td align="center">40.00</td>
-    <td align="center">46.67</td>
-    <td align="center">57.33</td>
-    <td align="center">6.00</td>
-    <td align="center">10.00</td>
-    <td align="center">14.00</td>
-    <td align="center">20.00</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1yZhkba1EU79LwqgizDzTUA">agdw</a></td>
+    <td align="center">4.00</td>
+    <td align="center">5.33</td>
+    <td align="center">9.33</td>
+    <td align="center">16.00</td>
+    <td align="center">4.00</td>
+    <td align="center">5.33</td>
+    <td align="center">6.67</td>
+    <td align="center">14.67</td>
+    <td align="center">1.33</td>
+    <td align="center">1.33</td>
+    <td align="center">1.33</td>
+    <td align="center">3.33</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1EG0Rm-gkqTviFcR8qBcHlQ">d2i4</a></td>
   </tr>
   <tr>
     <td align="center">DaCo</td>
-    <td align="center"><b>69.33</b></td>
-    <td align="center"><b>73.33</b></td>
+    <td align="center"><b>61.33</b></td>
+    <td align="center"><b>68.00</b></td>
+    <td align="center"><b>78.67</b></td>
+    <td align="center"><b>84.00</b></td>
+    <td align="center"><b>60.00</b></td>
+    <td align="center"><b>70.67</b></td>
     <td align="center"><b>81.33</b></td>
     <td align="center"><b>88.00</b></td>
-    <td align="center"><b>65.33</b></td>
-    <td align="center"><b>80.00</b></td>
-    <td align="center"><b>85.33</b></td>
-    <td align="center"><b>90.67</b></td>
-    <td align="center"><b>52.00</b></td>
-    <td align="center"><b>60.67</b></td>
-    <td align="center"><b>73.33</b></td>
-    <td align="center"><b>81.33</b></td>
+    <td align="center"><b>45.33</b></td>
+    <td align="center"><b>56.67</b></td>
+    <td align="center"><b>64.00</b></td>
+    <td align="center"><b>74.67</b></td>
     <td align="center"><a href="https://pan.baidu.com/s/139IHtS2_tOZcEK2Qgt-yQw">5dzs</a></td>
   </tr>
 </tbody>
@@ -225,82 +225,82 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simsiam
 <tbody>
   <tr>
     <td align="center">NPID</td>
-    <td align="center">34.20</td>
-    <td align="center">46.00</td>
-    <td align="center">55.20</td>
-    <td align="center">64.80</td>
-    <td align="center">38.40</td>
-    <td align="center">46.60</td>
-    <td align="center">58.00</td>
-    <td align="center">68.80</td>
-    <td align="center">4.20</td>
-    <td align="center">6.00</td>
-    <td align="center">7.90</td>
-    <td align="center">11.90</td>
+    <td align="center">5.60</td>
+    <td align="center">7.80</td>
+    <td align="center">10.20</td>
+    <td align="center">17.20</td>
+    <td align="center">5.20</td>
+    <td align="center">8.40</td>
+    <td align="center">12.60</td>
+    <td align="center">19.80</td>
+    <td align="center">0.20</td>
+    <td align="center">0.50</td>
+    <td align="center">0.70</td>
+    <td align="center">1.00</td>
     <td align="center"><a href="https://pan.baidu.com/s/1oUbOqWIJaJbtUDqcqmklgw">bbiv</a></td>
   </tr>
   <tr>
     <td align="center">MoCo</td>
     <td align="center">0.40</td>
     <td align="center">0.80</td>
-    <td align="center">1.00</td>
-    <td align="center">2.20</td>
+    <td align="center">1.40</td>
+    <td align="center">3.00</td>
     <td align="center">0.40</td>
-    <td align="center">0.60</td>
-    <td align="center">1.00</td>
+    <td align="center">0.80</td>
     <td align="center">1.80</td>
-    <td align="center">0.00</td>
-    <td align="center">0.00</td>
-    <td align="center">0.10</td>
-    <td align="center">0.10</td>
+    <td align="center">3.40</td>
+    <td align="center">0.20</td>
+    <td align="center">0.20</td>
+    <td align="center">0.20</td>
+    <td align="center">0.20</td>
     <td align="center"><a href="https://pan.baidu.com/s/1iR0_2kL9wq44mKM_-sfr_w">ma2a</a></td>
   </tr>
   <tr>
     <td align="center">SimCLR</td>
-    <td align="center">43.00</td>
-    <td align="center">55.60</td>
-    <td align="center">67.20</td>
-    <td align="center">76.60</td>
-    <td align="center">69.40</td>
-    <td align="center">80.40</td>
-    <td align="center">89.20</td>
-    <td align="center">94.00</td>
-    <td align="center">2.30</td>
-    <td align="center">3.70</td>
-    <td align="center">5.20</td>
-    <td align="center">7.80</td>
+    <td align="center">34.60</td>
+    <td align="center">48.00</td>
+    <td align="center">59.60</td>
+    <td align="center">71.40</td>
+    <td align="center">54.60</td>
+    <td align="center">66.80</td>
+    <td align="center">78.40</td>
+    <td align="center">86.00</td>
+    <td align="center">0.50</td>
+    <td align="center">1.00</td>
+    <td align="center">1.70</td>
+    <td align="center">2.90</td>
     <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
   </tr>
   <tr>
     <td align="center">SimSiam</td>
-    <td align="center">43.00</td>
-    <td align="center">55.60</td>
-    <td align="center">67.20</td>
-    <td align="center">76.60</td>
-    <td align="center">69.40</td>
-    <td align="center">80.40</td>
-    <td align="center">89.20</td>
-    <td align="center">94.00</td>
-    <td align="center">2.30</td>
-    <td align="center">3.70</td>
-    <td align="center">5.20</td>
-    <td align="center">7.80</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1ogY5eC1eb3IHemOsVO-ieg">hdhn</a></td>
+    <td align="center">0.60</td>
+    <td align="center">1.00</td>
+    <td align="center">1.60</td>
+    <td align="center">2.40</td>
+    <td align="center">0.80</td>
+    <td align="center">1.00</td>
+    <td align="center">1.80</td>
+    <td align="center">2.80</td>
+    <td align="center">0.00</td>
+    <td align="center">0.00</td>
+    <td align="center">0.00</td>
+    <td align="center">0.00</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1OKTifWGiCf3eBzDp8iZcuQ">dau5</a></td>
   </tr>
   <tr>
     <td align="center">DaCo</td>
-    <td align="center"><b>96.40</b></td>
-    <td align="center"><b>99.00</b></td>
+    <td align="center"><b>98.80</b></td>
     <td align="center"><b>99.60</b></td>
     <td align="center"><b>99.80</b></td>
-    <td align="center"><b>95.60</b></td>
-    <td align="center"><b>97.80</b></td>
+    <td align="center"><b>100.0</b></td>
+    <td align="center"><b>98.60</b></td>
+    <td align="center"><b>99.20</b></td>
     <td align="center"><b>99.40</b></td>
     <td align="center"><b>99.80</b></td>
-    <td align="center"><b>47.70</b></td>
-    <td align="center"><b>65.30</b></td>
-    <td align="center"><b>80.10</b></td>
-    <td align="center"><b>91.00</b></td>
+    <td align="center"><b>90.20</b></td>
+    <td align="center"><b>96.00</b></td>
+    <td align="center"><b>98.60</b></td>
+    <td align="center"><b>99.20</b></td>
     <td align="center"><a href="https://pan.baidu.com/s/1ForxWPJ_k3Eq_EXgLtpHCA">azvx</a></td>
   </tr>
 </tbody>
@@ -335,82 +335,82 @@ and `weight decay` is `1e-6`. `batch size` is `16` for `daco`, `32` for `simsiam
 <tbody>
   <tr>
     <td align="center">NPID</td>
-    <td align="center">6.67</td>
-    <td align="center">6.67</td>
     <td align="center">8.33</td>
+    <td align="center">10.00</td>
     <td align="center">11.67</td>
-    <td align="center">5.00</td>
+    <td align="center">20.00</td>
     <td align="center">6.67</td>
-    <td align="center">8.33</td>
-    <td align="center">13.33</td>
-    <td align="center">2.50</td>
-    <td align="center">5.00</td>
-    <td align="center">5.00</td>
     <td align="center">6.67</td>
+    <td align="center">18.33</td>
+    <td align="center">21.67</td>
+    <td align="center">5.00</td>
+    <td align="center">5.00</td>
+    <td align="center">10.00</td>
+    <td align="center">11.67</td>
     <td align="center"><a href="https://pan.baidu.com/s/1zpzPy9UvB9K3k4l0j0zF5w">bgua</a></td>
   </tr>
   <tr>
     <td align="center">MoCo</td>
-    <td align="center">10.00</td>
-    <td align="center">11.67</td>
-    <td align="center">21.67</td>
-    <td align="center">26.67</td>
-    <td align="center">10.00</td>
-    <td align="center">11.67</td>
-    <td align="center">18.33</td>
-    <td align="center">33.33</td>
-    <td align="center">1.67</td>
-    <td align="center">2.50</td>
-    <td align="center">2.50</td>
     <td align="center">5.00</td>
+    <td align="center">5.00</td>
+    <td align="center">8.33</td>
+    <td align="center">16.67</td>
+    <td align="center">10.00</td>
+    <td align="center">15.00</td>
+    <td align="center">16.67</td>
+    <td align="center">25.00</td>
+    <td align="center">1.67</td>
+    <td align="center">1.67</td>
+    <td align="center">1.67</td>
+    <td align="center">3.33</td>
     <td align="center"><a href="https://pan.baidu.com/s/1GFo1RrNufn3WeLHLxrJafA">sw7f</a></td>
   </tr>
   <tr>
     <td align="center">SimCLR</td>
+    <td align="center">23.33</td>
+    <td align="center">30.00</td>
+    <td align="center">46.67</td>
+    <td align="center">51.67</td>
     <td align="center">25.00</td>
-    <td align="center">35.00</td>
-    <td align="center">40.00</td>
-    <td align="center">53.33</td>
-    <td align="center">20.00</td>
-    <td align="center">26.67</td>
-    <td align="center">41.67</td>
+    <td align="center">33.33</td>
     <td align="center">48.33</td>
+    <td align="center">63.33</td>
     <td align="center">6.67</td>
-    <td align="center">9.17</td>
-    <td align="center">15.83</td>
-    <td align="center">24.17</td>
+    <td align="center">10.83</td>
+    <td align="center">16.67</td>
+    <td align="center">20.83</td>
     <td align="center"><a href="https://pan.baidu.com/s/1l5D86pAkI9duvDH_AQOZVQ">afeg</a></td>
   </tr>
   <tr>
     <td align="center">SimSiam</td>
-    <td align="center">25.00</td>
-    <td align="center">35.00</td>
-    <td align="center">40.00</td>
-    <td align="center">53.33</td>
-    <td align="center">20.00</td>
-    <td align="center">26.67</td>
-    <td align="center">41.67</td>
-    <td align="center">48.33</td>
+    <td align="center">10.00</td>
+    <td align="center">13.33</td>
+    <td align="center">15.00</td>
+    <td align="center">23.33</td>
+    <td align="center">5.00</td>
+    <td align="center">10.00</td>
+    <td align="center">21.67</td>
+    <td align="center">30.00</td>
+    <td align="center">3.33</td>
+    <td align="center">5.00</td>
     <td align="center">6.67</td>
-    <td align="center">9.17</td>
-    <td align="center">15.83</td>
-    <td align="center">24.17</td>
-    <td align="center"><a href="https://pan.baidu.com/s/1l5D86pAkI9duvDH_AQOZVQ">afeg</a></td>
+    <td align="center">8.33</td>
+    <td align="center"><a href="https://pan.baidu.com/s/1ePQ51BRDNCykDQXMVlz6vw">bjnj</a></td>
   </tr>
   <tr>
     <td align="center">DaCo</td>
-    <td align="center"><b>46.67</b></td>
-    <td align="center"><b>66.67</b></td>
+    <td align="center"><b>55.00</b></td>
+    <td align="center"><b>68.33</b></td>
     <td align="center"><b>75.00</b></td>
     <td align="center"><b>88.33</b></td>
-    <td align="center"><b>45.00</b></td>
-    <td align="center"><b>50.00</b></td>
+    <td align="center"><b>41.67</b></td>
+    <td align="center"><b>51.67</b></td>
     <td align="center"><b>70.00</b></td>
-    <td align="center"><b>86.67</b></td>
-    <td align="center"><b>28.33</b></td>
-    <td align="center"><b>39.17</b></td>
+    <td align="center"><b>83.33</b></td>
+    <td align="center"><b>25.00</b></td>
+    <td align="center"><b>34.17</b></td>
     <td align="center"><b>50.00</b></td>
-    <td align="center"><b>67.50</b></td>
+    <td align="center"><b>66.67</b></td>
     <td align="center"><a href="https://pan.baidu.com/s/1PHednJb8PQ2FVb6Ht8jJTg">sasq</a></td>
   </tr>
 </tbody>
