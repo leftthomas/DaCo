@@ -15,17 +15,16 @@ def plot_embedding(data, domain, label, idx, title):
     ax = plt.subplot(111)
     for i in range(data.shape[0]):
         if domain[i]:
-            shape = 'o'
-        else:
-            shape = 'x'
-        if label[i] == label[idx[i]]:
-            correct += 1
             color = '#00CED1'
         else:
             color = '#DC143C'
+        if label[i] == label[idx[i]]:
+            correct += 1
+            shape = '*'
+        else:
+            shape = 'o'
         plt.scatter(data[i, 0], data[i, 1], s=10, c=color, marker=shape)
-    acc = correct / len(data)
-    plt.savefig('result/{}_{:.2f}.pdf'.format(title, acc * 100), dpi=30, bbox_inches='tight', pad_inches=0)
+    plt.savefig('result/{}_{}.pdf'.format(title, correct), dpi=30, bbox_inches='tight', pad_inches=0)
 
 
 data_name = 'tokyo'
