@@ -1,7 +1,7 @@
 # DaCo
 
 A PyTorch implementation of DaCo based on the
-paper [DaCo: Domain-Agnostic Contrastive Learning for Coarse-Grained Visual Place Recognition]().
+paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Place Recognition]().
 
 ![Network Architecture](result/structure.png)
 
