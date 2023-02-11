@@ -6,6 +6,8 @@ import cv2
 import numpy as np
 import pandas as pd
 import torch
+from scipy.cluster.vq import *
+from sklearn import preprocessing
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
@@ -31,7 +33,7 @@ if __name__ == '__main__':
         results['val_ab_recall@{}'.format(rank)] = []
         results['val_ba_recall@{}'.format(rank)] = []
         results['val_cross_recall@{}'.format(rank)] = []
-    save_name_pre = '{}_VLAD'.format(data_name)
+    save_name_pre = '{}_BOW'.format(data_name)
     if not os.path.exists(save_root):
         os.makedirs(save_root)
 
@@ -46,23 +48,26 @@ if __name__ == '__main__':
         image = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
         sift = cv2.xfeatures2d.SIFT_create()
         keypoints, descriptors = sift.detectAndCompute(image, None)
+        vectors.append(descriptors)
 
-        clusters = KMeans(n_clusters=4).fit(descriptors)
-        labels_pred = clusters.predict(descriptors)
-        centers_cluster = clusters.cluster_centers_
-        num_cluster = clusters.n_clusters
-        vlad_descriptors = np.zeros([num_cluster, 128], dtype=np.float32)
-        for i in range(num_cluster):
-            if np.sum(labels_pred == i) > 0:
-                x_belongs_cluster = descriptors[labels_pred == i, :]
-                vlad_descriptors[i] = np.sum(x_belongs_cluster - centers_cluster[i], axis=0)
-        vlad_descriptors = vlad_descriptors.flatten()
-        vlad_descriptors = np.sign(vlad_descriptors) * (np.abs(vlad_descriptors) ** 0.5)
-        vlad_descriptors = vlad_descriptors / np.sqrt(vlad_descriptors @ vlad_descriptors)
-        vectors.append(vlad_descriptors)
+    descriptors = vectors[0]
+    for descriptor in vectors[1:]:
+        descriptors = np.vstack((descriptors, descriptor))
+    clusters = KMeans(n_clusters=64).fit(descriptors).cluster_centers_
+
+    im_features = np.zeros((len(vectors), 64), np.float32)
+    for i in range(0, len(vectors)):
+        words, distance = vq(vectors[i], clusters)
+        for w in words:
+            im_features[i][w] += 1
+
+    nbr_occurences = np.sum((im_features > 0) * 1, axis=0)
+    idf = np.array(np.log((1.0 * len(vectors) + 1) / (1.0 * nbr_occurences + 1)), np.float32)
+    im_features = im_features * idf
+    vectors = preprocessing.normalize(im_features, norm='l2')
+    vectors = torch.tensor(vectors)
 
     # matching
-    vectors = torch.tensor(np.array(vectors))
     sim_matrix = torch.mm(vectors, vectors.t())
 
     with torch.no_grad():
