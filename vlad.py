@@ -6,10 +6,11 @@ import cv2
 import numpy as np
 import pandas as pd
 import torch
+from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='SIFT Model')
+    parser = argparse.ArgumentParser(description='VLAD Model')
     # common args
     parser.add_argument('--data_root', default='data', type=str, help='Datasets root path')
     parser.add_argument('--data_name', default='tokyo', type=str, choices=['tokyo', 'cityscapes', 'synthia'],
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         results['val_ab_recall@{}'.format(rank)] = []
         results['val_ba_recall@{}'.format(rank)] = []
         results['val_cross_recall@{}'.format(rank)] = []
-    save_name_pre = '{}_SIFT'.format(data_name)
+    save_name_pre = '{}_VLAD'.format(data_name)
     if not os.path.exists(save_root):
         os.makedirs(save_root)
 
@@ -45,19 +46,24 @@ if __name__ == '__main__':
         image = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
         sift = cv2.xfeatures2d.SIFT_create()
         keypoints, descriptors = sift.detectAndCompute(image, None)
-        vectors.append(descriptors)
+
+        clusters = KMeans(n_clusters=4).fit(descriptors)
+        labels_pred = clusters.predict(descriptors)
+        centers_cluster = clusters.cluster_centers_
+        num_cluster = clusters.n_clusters
+        vlad_descriptors = np.zeros([num_cluster, 128], dtype=np.float32)
+        for i in range(num_cluster):
+            if np.sum(labels_pred == i) > 0:
+                x_belongs_cluster = descriptors[labels_pred == i, :]
+                vlad_descriptors[i] = np.sum(x_belongs_cluster - centers_cluster[i], axis=0)
+        vlad_descriptors = vlad_descriptors.flatten()
+        vlad_descriptors = np.sign(vlad_descriptors) * (np.abs(vlad_descriptors) ** 0.5)
+        vlad_descriptors = vlad_descriptors / np.sqrt(vlad_descriptors @ vlad_descriptors)
+        vectors.append(vlad_descriptors)
 
     # matching
-    flann = cv2.FlannBasedMatcher(dict(algorithm=0, trees=5), dict(checks=50))
-    sim_matrix = torch.zeros(len(vectors), len(vectors))
-    for i in range(len(vectors)):
-        for j in range(len(vectors)):
-            matches = flann.knnMatch(vectors[i], vectors[j], k=2)
-            count = 0
-            for k, (m, n) in enumerate(matches):
-                if m.distance < 0.7 * n.distance:
-                    count += 1
-            sim_matrix[i, j] = count / (len(vectors[i]) + len(vectors[j]) - count)
+    vectors = torch.tensor(np.array(vectors))
+    sim_matrix = torch.mm(vectors, vectors.t())
 
     with torch.no_grad():
         labels = torch.arange(len(vectors) // 2)
