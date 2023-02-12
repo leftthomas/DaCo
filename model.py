@@ -4,74 +4,25 @@ import torch.nn.functional as F
 from torchvision.models.resnet import resnet50
 
 
-class NetVLAD(nn.Module):
-    """NetVLAD layer implementation"""
-
-    def __init__(self, num_clusters=64, dim=128, alpha=100.0, normalize_input=True):
-        """
-        Args:
-            num_clusters : int
-                The number of clusters
-            dim : int
-                Dimension of descriptors
-            alpha : float
-                Parameter of initialization. Larger value is harder assignment.
-            normalize_input : bool
-                If true, descriptor-wise L2 normalization is applied to input.
-        """
-        super(NetVLAD, self).__init__()
-        self.num_clusters = num_clusters
-        self.dim = dim
-        self.alpha = alpha
-        self.normalize_input = normalize_input
-        self.conv = nn.Conv2d(dim, num_clusters, kernel_size=(1, 1), bias=True)
-        self.centroids = nn.Parameter(torch.rand(num_clusters, dim))
-        self._init_params()
-
-    def _init_params(self):
-        self.conv.weight = nn.Parameter((2.0 * self.alpha * self.centroids).unsqueeze(-1).unsqueeze(-1))
-        self.conv.bias = nn.Parameter(- self.alpha * self.centroids.norm(dim=1))
-
-    def forward(self, x):
-        N, C = x.shape[:2]
-
-        if self.normalize_input:
-            x = F.normalize(x, p=2, dim=1)
-
-        # soft-assignment
-        soft_assign = self.conv(x).view(N, self.num_clusters, -1)
-        soft_assign = F.softmax(soft_assign, dim=1)
-        x_flatten = x.view(N, C, -1)
-
-        residual = x_flatten.expand(self.num_clusters, -1, -1, -1).permute(1, 0, 2, 3) - \
-                   self.centroids.expand(x_flatten.size(-1), -1, -1).permute(1, 2, 0).unsqueeze(0)
-
-        residual *= soft_assign.unsqueeze(2)
-        vlad = residual.sum(dim=-1)
-
-        vlad = F.normalize(vlad, p=2, dim=2)
-        vlad = vlad.view(x.size(0), -1)
-        vlad = F.normalize(vlad, p=2, dim=1)
-
-        return vlad
-
-
 class Model(nn.Module):
     def __init__(self, hidden_dim):
         super(Model, self).__init__()
 
         self.f = []
         for name, module in resnet50().named_children():
-            if not isinstance(module, (nn.Linear, nn.AdaptiveAvgPool2d)):
+            if not isinstance(module, nn.Linear):
                 self.f.append(module)
         # encoder
         self.f = nn.Sequential(*self.f)
-        self.g = nn.Conv2d(2048, 128, kernel_size=3)
-        self.vlad = NetVLAD(num_clusters=hidden_dim // 128)
+        # projection head
+        self.g = nn.Sequential(nn.Linear(2048, hidden_dim, bias=False), nn.BatchNorm1d(hidden_dim),
+                               nn.ReLU(inplace=True), nn.Linear(hidden_dim, 2048, bias=True))
 
     def forward(self, x):
-        feature = self.vlad(self.g(self.f(x)))
-        return feature
+        x = self.f(x)
+        feature = torch.flatten(x, start_dim=1)
+        proj = self.g(feature)
+        return F.normalize(feature, dim=-1), F.normalize(proj, dim=-1)
 
 
 class SimCLRLoss(nn.Module):
