@@ -26,37 +26,37 @@ def train(net_q, data_loader, train_optimizer):
     net_q.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(data_loader, dynamic_ncols=True)
     for ori_img_1, ori_img_2, gen_img_1, gen_img_2, pos_index in train_bar:
-        ori_feature_1, ori_proj_1 = net_q(ori_img_1.cuda())
+        ori_feature_1 = net_q(ori_img_1.cuda())
 
         if method_name == 'npid':
-            loss, pos_samples = loss_criterion(ori_proj_1, pos_index)
+            loss, pos_samples = loss_criterion(ori_feature_1, pos_index)
         elif method_name == 'simclr':
-            ori_feature_2, ori_proj_2 = net_q(ori_img_2.cuda())
-            loss = loss_criterion(ori_proj_1, ori_proj_2)
+            ori_feature_2 = net_q(ori_img_2.cuda())
+            loss = loss_criterion(ori_feature_1, ori_feature_2)
         elif method_name == 'simsiam':
-            ori_feature_2, ori_proj_2 = net_q(ori_img_2.cuda())
-            loss = loss_criterion(ori_feature_1, ori_feature_2, ori_proj_1, ori_proj_2)
+            ori_feature_2 = net_q(ori_img_2.cuda())
+            loss = loss_criterion(ori_feature_1, ori_feature_2, ori_feature_1, ori_feature_2)
         elif method_name == 'moco':
             # shuffle BN
             idx = torch.randperm(batch_size, device=ori_img_2.cuda().device)
-            ori_feature_2, ori_proj_2 = model_k(ori_img_2.cuda()[idx])
-            ori_proj_2 = ori_proj_2[torch.argsort(idx)]
-            loss = loss_criterion(ori_proj_1, ori_proj_2)
+            ori_feature_2 = model_k(ori_img_2.cuda()[idx])
+            ori_feature_2 = ori_feature_2[torch.argsort(idx)]
+            loss = loss_criterion(ori_feature_1, ori_feature_2)
         else:
             # DaCo
-            ori_feature_2, ori_proj_2 = net_q(ori_img_2.cuda())
-            gen_feature_1, gen_proj_1 = net_q(gen_img_1.cuda())
-            gen_feature_2, gen_proj_2 = net_q(gen_img_2.cuda())
-            loss = loss_criterion(ori_proj_1, ori_proj_2, gen_proj_1, gen_proj_2)
+            ori_feature_2 = net_q(ori_img_2.cuda())
+            gen_feature_1 = net_q(gen_img_1.cuda())
+            gen_feature_2 = net_q(gen_img_2.cuda())
+            loss = loss_criterion(ori_feature_1, ori_feature_2, gen_feature_1, gen_feature_2)
 
         train_optimizer.zero_grad()
         loss.backward()
         train_optimizer.step()
 
         if method_name == 'npid':
-            loss_criterion.enqueue(ori_proj_1, pos_index, pos_samples)
+            loss_criterion.enqueue(ori_feature_1, pos_index, pos_samples)
         elif method_name == 'moco':
-            loss_criterion.enqueue(ori_proj_2)
+            loss_criterion.enqueue(ori_feature_2)
             # momentum update
             for parameter_q, parameter_k in zip(net_q.parameters(), model_k.parameters()):
                 parameter_k.data.copy_(parameter_k.data * momentum + parameter_q.data * (1.0 - momentum))
@@ -74,7 +74,7 @@ def val(net, data_loader):
     vectors = []
     with torch.no_grad():
         for data, _, _, _, _ in tqdm(data_loader, desc='Feature extracting', dynamic_ncols=True):
-            vectors.append(net(data.cuda())[0])
+            vectors.append(net(data.cuda()))
         vectors = torch.cat(vectors, dim=0)
         acc_a, acc_b, acc = recall(vectors, ranks)
         precise = (acc_a[0] + acc_b[0] + acc[0]) / 3
