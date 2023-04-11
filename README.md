@@ -1,6 +1,6 @@
 # DaCo
 
-A PyTorch implementation of DaCo based on the
+A PyTorch implementation of DaCo based on APIN 2023
 paper [DaCo: Domain-Agnostic Contrastive Learning for Visual Place Recognition]().
 
 ![Network Architecture](result/structure.png)
